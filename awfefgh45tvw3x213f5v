@@ -1451,7 +1451,7 @@ function multisections:section(props)
 			Size = UDim2.new(1,0,0,20),
 			Position = UDim2.new(0,0,0,0),
 			Font = self.library.font,
-			Text = name,
+			Text = "TEST",
 			TextColor3 = Color3.fromRGB(255,255,255),
 			TextSize = self.library.textsize,
 			TextStrokeTransparency = 0,
