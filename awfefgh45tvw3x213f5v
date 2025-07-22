@@ -64,17 +64,15 @@ utility.dragify = function(ins, touse)
     local dragInput
     local dragStart
     local startPos
-    --
+
     local function update(input)
         local delta = input.Position - dragStart
         touse.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
         )
     end
-    --
+
     ins.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
@@ -88,13 +86,13 @@ utility.dragify = function(ins, touse)
             end)
         end
     end)
-    --
+
     ins.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
-    --
+
     uis.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             update(input)
@@ -1281,7 +1279,7 @@ function pages:multisection(props)
 		{
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1,-5,0,20),
-			Position = UDim2.new(0,5,0,0),
+			Position = UDim2.new(0,5,0,-2),
 			Font = self.library.font,
 			Text = name,
 			TextColor3 = Color3.fromRGB(255,255,255),
