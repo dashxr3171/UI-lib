@@ -3277,8 +3277,8 @@ function sections:keybind(props)
                 turn("KeyCode", input.KeyCode)
                 callback(input.KeyCode)
                 tempConnection:Disconnect()
+    
             elseif allowed == 1 then
-                -- Handle mouse buttons correctly
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or
                    input.UserInputType == Enum.UserInputType.MouseButton2 or
                    input.UserInputType == Enum.UserInputType.MouseButton3 then
@@ -3313,63 +3313,65 @@ function sections:keybind(props)
     return keybind
 end
 
---
+
+-- keybinds:set function to update keybind programmatically
 function keybinds:set(key)
-	if key then
-		if typeof(key) == "EnumItem" or typeof(key) == "table" then
-			if typeof(key) == "table" then
-				if key[1] and key[2] then
-					key = Enum[key[1]][key[2]]
-				else
-					return
-				end
-			end
-			local keybind = self
-			local typeis = ""
-			--
-			local default = ".."
-			--
-			if key == Enum.UserInputType.MouseButton1 then
-				if keybind.allowed == 1 then
-					default = "MB1"
-					typeis = "UserInputType"
-				end
-			elseif key == Enum.UserInputType.MouseButton2 then
-				if keybind.allowed == 1 then
-					default = "MB2"
-					typeis = "UserInputType"
-				end
-			elseif key == Enum.UserInputType.MouseButton3 then
-				if keybind.allowed == 1 then
-					default = "MB3"
-					typeis = "UserInputType"
-				end
-			else
-				local capd = utility.capatalize(key.Name)
-				if #capd > 1 then
-					default = capd
-				else
-					default = key.Name
-				end
-				typeis = "KeyCode"
-			end
-			--
-			keybind.value.Text = default
-			keybind.current = {typeis,utility.splitenum(key)}
-			keybind.callback(keybind.current)
-			keybind.outline.Size = UDim2.new(0,keybind.value.TextBounds.X+20,1,0)
-			--
-			if keybind.down then
-				keybind.down = false
-				keybind.outline.BorderColor3 = Color3.fromRGB(12, 12, 12)
-				local find = table.find(self.library.themeitems["accent"]["BorderColor3"],keybind.outline)
-				if find then
-					table.remove(self.library.themeitems["accent"]["BorderColor3"],find)
-				end
-			end
-		end
-	end
+    if key then
+        if typeof(key) == "EnumItem" or typeof(key) == "table" then
+            if typeof(key) == "table" then
+                if key[1] and key[2] then
+                    key = Enum[key[1]][key[2]]
+                else
+                    return
+                end
+            end
+    
+            local keybind = self
+            local typeis = ""
+            local default = ".."
+    
+            if key == Enum.UserInputType.MouseButton1 then
+                if keybind.allowed == 1 then
+                    default = "MB1"
+                    typeis = "UserInputType"
+                end
+            elseif key == Enum.UserInputType.MouseButton2 then
+                if keybind.allowed == 1 then
+                    default = "MB2"
+                    typeis = "UserInputType"
+                end
+            elseif key == Enum.UserInputType.MouseButton3 then
+                if keybind.allowed == 1 then
+                    default = "MB3"
+                    typeis = "UserInputType"
+                end
+            else
+                local capd = utility.capatalize(key.Name)
+                if #capd > 1 then
+                    default = capd
+                else
+                    default = key.Name
+                end
+                typeis = "KeyCode"
+            end
+    
+            keybind.value.Text = default
+            keybind.current = {typeis, utility.splitenum(key)}
+            keybind.callback(keybind.current)
+            keybind.outline.Size = UDim2.new(0, keybind.value.TextBounds.X + 20, 1, 0)
+    
+            if keybind.down then
+                keybind.down = false
+                keybind.outline.BorderColor3 = Color3.fromRGB(12, 12, 12)
+                local find = table.find(self.library.themeitems["accent"]["BorderColor3"], keybind.outline)
+                if find then
+                    table.remove(self.library.themeitems["accent"]["BorderColor3"], find)
+                end
+            end
+        end
+    end
 end
+
 --
 function sections:colorpicker(props)
 	-- // properties
