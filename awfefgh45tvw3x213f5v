@@ -3283,21 +3283,48 @@ uis.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
+-- Click keybind button to start capturing
+button.MouseButton1Click:Connect(function()
+    if keybind.down then return end -- prevent multiple captures
+    keybind.down = true
+    outline.BorderColor3 = self.library.theme.accent
+    table.insert(self.library.themeitems["accent"]["BorderColor3"], outline)
 
-    -- // Pointer
-    local pointer = props.pointer or props.Pointer or props.pointername or props.Pointername 
-        or props.PointerName or props.pointerName
-    if pointer and self.pointers then
-        self.pointers[tostring(pointer)] = keybind
-    end
+    -- Temporary connection for this keybind capture
+    local tempConnection
+    tempConnection = uis.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        if not keybind.down then
+            tempConnection:Disconnect()
+            return
+        end
 
-    -- // Save Labels
-    table.insert(self.library.labels, title)
-    table.insert(self.library.labels, value)
+        -- Capture Key or Mouse
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            local capd = utility.capatalize(input.KeyCode.Name)
+            value.Text = (#capd > 1 and capd or input.KeyCode.Name)
+            turn("KeyCode", input.KeyCode)
+            callback(input.KeyCode)
+            keybind.down = false
+            tempConnection:Disconnect()
+        elseif allowed == 1 then
+            local btn = ({
+                [Enum.UserInputType.MouseButton1] = "MB1",
+                [Enum.UserInputType.MouseButton2] = "MB2",
+                [Enum.UserInputType.MouseButton3] = "MB3"
+            })[input.UserInputType]
 
-    setmetatable(keybind, keybinds)
-    return keybind
-end
+            if btn then
+                value.Text = btn
+                turn("UserInputType", input)
+                callback(input)
+                keybind.down = false
+                tempConnection:Disconnect()
+            end
+        end
+    end)
+end)
+
 
 --
 function keybinds:set(key)
