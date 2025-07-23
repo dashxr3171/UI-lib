@@ -3205,7 +3205,7 @@ function sections:keybind(props)
 		{
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1,0,1,0),
-			Position = UDim2.new(0,0,-1,0),
+			Position = UDim2.new(0,0,-0.15,0),
 			Font = self.library.font,
 			Text = def,
 			TextColor3 = Color3.fromRGB(255,255,255),
