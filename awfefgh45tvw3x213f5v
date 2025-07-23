@@ -3251,47 +3251,38 @@ function sections:keybind(props)
     end
 
     -- // Input Handler
-    uis.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
+  -- Click keybind button to start capturing
+button.MouseButton1Click:Connect(function()
+    outline.BorderColor3 = self.library.theme.accent
+    table.insert(self.library.themeitems["accent"]["BorderColor3"], outline)
+    keybind.down = true
+end)
 
-        if keybind.down then
-            -- Capture Key or Mouse
-            if input.UserInputType == Enum.UserInputType.Keyboard then
-                local capd = utility.capatalize(input.KeyCode.Name)
-                value.Text = (#capd > 1 and capd or input.KeyCode.Name)
-                turn("KeyCode", input.KeyCode)
-                callback(input.KeyCode)
-            elseif allowed == 1 then
-                local btn = ({
-                    [Enum.UserInputType.MouseButton1] = "MB1",
-                    [Enum.UserInputType.MouseButton2] = "MB2",
-                    [Enum.UserInputType.MouseButton3] = "MB3"
-                })[input.UserInputType]
+-- Input listener for capturing keys/mouse
+uis.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed or not keybind.down then return end
 
-                if btn then
-                    value.Text = btn
-                    turn("UserInputType", input)
-                    callback(input)
-                end
-            end
-        else
-            -- Enter Bind Mode
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                outline.BorderColor3 = self.library.theme.accent
-                table.insert(self.library.themeitems["accent"]["BorderColor3"], outline)
-                keybind.down = true
-            elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
-                -- Reset Bind
-                keybind.down = false
-                keybind.current = { nil, nil }
-                outline.BorderColor3 = Color3.fromRGB(12, 12, 12)
-                local find = table.find(self.library.themeitems["accent"]["BorderColor3"], outline)
-                if find then table.remove(self.library.themeitems["accent"]["BorderColor3"], find) end
-                value.Text = ".."
-                outline.Size = UDim2.new(0, value.TextBounds.X + 20, 1, 0)
-            end
+    -- Capture Key or Mouse
+    if input.UserInputType == Enum.UserInputType.Keyboard then
+        local capd = utility.capatalize(input.KeyCode.Name)
+        value.Text = (#capd > 1 and capd or input.KeyCode.Name)
+        turn("KeyCode", input.KeyCode)
+        callback(input.KeyCode)
+    elseif allowed == 1 then
+        local btn = ({
+            [Enum.UserInputType.MouseButton1] = "MB1",
+            [Enum.UserInputType.MouseButton2] = "MB2",
+            [Enum.UserInputType.MouseButton3] = "MB3"
+        })[input.UserInputType]
+
+        if btn then
+            value.Text = btn
+            turn("UserInputType", input)
+            callback(input)
         end
-    end)
+    end
+end)
+
 
     -- // Pointer
     local pointer = props.pointer or props.Pointer or props.pointername or props.Pointername 
