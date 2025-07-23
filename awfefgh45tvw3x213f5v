@@ -3206,11 +3206,11 @@ function sections:keybind(props)
         Parent = color
     })
 
-    utility.new("TextButton", {
-        BackgroundTransparency = 1,
-        Size = UDim2.new(1, 0, 1, 0),
-        Text = "",
-        Parent = keybindholder
+    local button = utility.new("TextButton", {
+    BackgroundTransparency = 1,
+    Size = UDim2.new(1, 0, 1, 0),
+    Text = "",
+    Parent = keybindholder
     })
 
     local title = utility.new("TextLabel", {
