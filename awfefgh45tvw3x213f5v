@@ -3131,6 +3131,7 @@ function sections:keybind(props)
 	local def = props.def or props.Def or props.default or props.Default or nil
 	local callback = props.callback or props.callBack or props.CallBack or props.Callback or function()end
 	local allowed = props.allowed or props.Allowed or 1
+	local parent = props.parent or props.Parent or self.content -- << Parent (toggle button) if provided
 	--
 	local default = ".."
 	local typeis = nil
@@ -3168,9 +3169,9 @@ function sections:keybind(props)
 		"Frame",
 		{
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1,0,0,17),
-                        Position = UDim2.new(0, 0, 0, -10),
-			Parent = self.content
+			Size = UDim2.new(0, 100, 0, 17),
+			Position = UDim2.new(1, 10, 0, 0), -- 10px to the right of the parent (toggle)
+			Parent = parent
 		}
 	)
 	--
@@ -3183,7 +3184,7 @@ function sections:keybind(props)
 			BorderMode = "Inset",
 			BorderSizePixel = 1,
 			Size = UDim2.new(0,40,1,0),
-			Position = UDim2.new(1,0,0,-10),
+			Position = UDim2.new(1,0,0,0),
 			Parent = keybindholder
 		}
 	)
@@ -3196,7 +3197,7 @@ function sections:keybind(props)
 			BorderMode = "Inset",
 			BorderSizePixel = 1,
 			Size = UDim2.new(1,0,1,0),
-			Position = UDim2.new(0,0,0,-10),
+			Position = UDim2.new(0,0,0,0),
 			Parent = outline
 		}
 	)
@@ -3225,7 +3226,7 @@ function sections:keybind(props)
 			BackgroundColor3 = Color3.fromRGB(30, 30, 30),
 			BorderSizePixel = 0,
 			Size = UDim2.new(1,0,1,0),
-			Position = UDim2.new(0,0,0,-10),
+			Position = UDim2.new(0,0,0,0),
 			Parent = outline2
 		}
 	)
@@ -3245,7 +3246,7 @@ function sections:keybind(props)
 			AnchorPoint = Vector2.new(0,0),
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1,0,1,0),
-			Position = UDim2.new(0,0,0,-10),
+			Position = UDim2.new(0,0,0,0),
 			Text = "",
 			TextColor3 = Color3.fromRGB(255,255,255),
 			TextSize = self.library.textsize,
@@ -3358,6 +3359,7 @@ function sections:keybind(props)
 	setmetatable(keybind, keybinds)
 	return keybind
 end
+
 --
 function keybinds:set(key)
 	if key then
