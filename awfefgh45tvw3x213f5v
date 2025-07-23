@@ -3207,7 +3207,7 @@ function sections:keybind(props)
 		{
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1,0,1,0),
-			Position = UDim2.new(0,0,-0.15,0),
+			Position = UDim2.new(0,10,-0.15,-5),
 			Font = self.library.font,
 			Text = default,
 			TextColor3 = Color3.fromRGB(255,255,255),
@@ -3226,7 +3226,7 @@ function sections:keybind(props)
 			BackgroundColor3 = Color3.fromRGB(30, 30, 30),
 			BorderSizePixel = 0,
 			Size = UDim2.new(1,0,1,0),
-			Position = UDim2.new(0,0,0,0),
+			Position = UDim2.new(0,10,0,-5),
 			Parent = outline2
 		}
 	)
@@ -3246,7 +3246,7 @@ function sections:keybind(props)
 			AnchorPoint = Vector2.new(0,0),
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1,0,1,0),
-			Position = UDim2.new(0,0,0,0),
+			Position = UDim2.new(0,10,0,-5),
 			Text = "",
 			TextColor3 = Color3.fromRGB(255,255,255),
 			TextSize = self.library.textsize,
