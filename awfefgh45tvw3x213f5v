@@ -550,231 +550,271 @@ function watermarks:updateside(side)
 end
 --
 function library:loader(props)
-	local name = props.name or props.Name or props.LoaderName or props.Loadername or props.loaderName or props.loadername or "Loader"
-	local scriptname = props.scriptname or props.Scriptname or props.ScriptName or props.scriptName or "Universal"
-	local closed = props.close or props.Close or props.closecallback or props.Closecallback or props.CloseCallback or props.closeCallback or function()end
-	local logedin = props.login or props.Login or props.logincallback or props.Logincallback or props.LoginCallback or props.loginCallback or function()end
-	local loader = {}
-	--
-	local screen = utility.new(
-		"ScreenGui",
-		{
-			Name = tostring(math.random(0,999999))..tostring(math.random(0,999999)),
-			DisplayOrder = 9999,
-			ResetOnSpawn = false,
-			ZIndexBehavior = "Global",
-			Parent = cre
-		}
-	)
-        if (check_exploit == "Synapse" and syn.request) then
-	syn.protect_gui(screen)
+    local name = props.name or props.Name or props.LoaderName or props.Loadername or props.loaderName or props.loadername or "Loader"
+    local scriptname = props.scriptname or props.Scriptname or props.ScriptName or props.scriptName or "Universal"
+    local closed = props.close or props.Close or props.closecallback or props.Closecallback or props.CloseCallback or props.closeCallback or function() end
+    local logedin = props.login or props.Login or props.logincallback or props.Logincallback or props.LoginCallback or props.loginCallback or function() end
+    local correctKey = props.key or "MySecretKey" -- Default key, can override when calling
+    
+    local loader = {}
+    --
+    local screen = utility.new(
+        "ScreenGui",
+        {
+            Name = tostring(math.random(0, 999999)) .. tostring(math.random(0, 999999)),
+            DisplayOrder = 9999,
+            ResetOnSpawn = false,
+            ZIndexBehavior = "Global",
+            Parent = cre
+        }
+    )
+    if (check_exploit == "Synapse" and syn.request) then
+        syn.protect_gui(screen)
+    end
+    --
+    local outline = utility.new(
+        "Frame",
+        {
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundColor3 = Color3.fromRGB(168, 52, 235),
+            BorderColor3 = Color3.fromRGB(12, 12, 12),
+            BorderSizePixel = 1,
+            Size = UDim2.new(0, 300, 0, 130), -- increased height to fit TextBox
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            ZIndex = 9900,
+            Visible = false,
+            Parent = screen
+        }
+    )
+    --
+    local outline2 = utility.new(
+        "Frame",
+        {
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BorderColor3 = Color3.fromRGB(12, 12, 12),
+            BorderSizePixel = 1,
+            Size = UDim2.new(1, -4, 1, -4),
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            ZIndex = 9901,
+            Parent = outline
+        }
+    )
+    --
+    local indent = utility.new(
+        "Frame",
+        {
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundColor3 = Color3.fromRGB(20, 20, 20),
+            BorderColor3 = Color3.fromRGB(56, 56, 56),
+            BorderSizePixel = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            ZIndex = 9902,
+            Parent = outline2
+        }
+    )
+    --
+    local title = utility.new(
+        "TextLabel",
+        {
+            AnchorPoint = Vector2.new(0.5, 0),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -10, 0, 20),
+            Position = UDim2.new(0.5, 0, 0, 0),
+            Font = "RobotoMono",
+            Text = name,
+            TextColor3 = Color3.fromRGB(168, 52, 235),
+            TextXAlignment = "Center",
+            TextSize = 12,
+            TextStrokeTransparency = 0,
+            ZIndex = 9903,
+            Parent = indent
+        }
+    )
+    --
+    local scripttitle = utility.new(
+        "TextLabel",
+        {
+            AnchorPoint = Vector2.new(0.5, 0),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -10, 0, 20),
+            Position = UDim2.new(0.5, 0, 0, 20),
+            Font = "RobotoMono",
+            Text = "Script: " .. scriptname,
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextXAlignment = "Center",
+            TextSize = 12,
+            TextStrokeTransparency = 0,
+            ZIndex = 9903,
+            Parent = indent
+        }
+    )
+    --
+    -- Key input TextBox
+    local keyInput = utility.new(
+        "TextBox",
+        {
+            AnchorPoint = Vector2.new(0.5, 0),
+            BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+            BorderColor3 = Color3.fromRGB(168, 52, 235),
+            BorderSizePixel = 1,
+            Position = UDim2.new(0.5, 0, 0, 45),
+            Size = UDim2.new(0.9, 0, 0, 25),
+            Font = Enum.Font.RobotoMono,
+            Text = "",
+            PlaceholderText = "Enter your key here...",
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            TextSize = 14,
+            ClearTextOnFocus = false,
+            ZIndex = 9904,
+            Parent = indent
+        }
+    )
+    --
+    local makebutton = function(name, parent)
+        local button_holder = utility.new(
+            "Frame",
+            {
+                BackgroundTransparency = 1,
+                BorderSizePixel = 0,
+                ZIndex = 9905,
+                Parent = parent
+            }
+        )
+        --
+        local button_outline = utility.new(
+            "Frame",
+            {
+                BackgroundColor3 = Color3.fromRGB(24, 24, 24),
+                BorderColor3 = Color3.fromRGB(12, 12, 12),
+                BorderMode = "Inset",
+                BorderSizePixel = 1,
+                Position = UDim2.new(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 1, 0),
+                ZIndex = 9906,
+                Parent = button_holder
+            }
+        )
+        --
+        local button_outline2 = utility.new(
+            "Frame",
+            {
+                BackgroundColor3 = Color3.fromRGB(24, 24, 24),
+                BorderColor3 = Color3.fromRGB(56, 56, 56),
+                BorderMode = "Inset",
+                BorderSizePixel = 1,
+                Position = UDim2.new(0, 0, 0, 0),
+                Size = UDim2.new(1, 0, 1, 0),
+                ZIndex = 9907,
+                Parent = button_outline
+            }
+        )
+        --
+        local button_color = utility.new(
+            "Frame",
+            {
+                AnchorPoint = Vector2.new(0, 0),
+                BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+                BorderSizePixel = 0,
+                Size = UDim2.new(1, 0, 0, 0),
+                Position = UDim2.new(0, 0, 0, 0),
+                ZIndex = 9908,
+                Parent = button_outline2
+            }
+        )
+        --
+        utility.new(
+            "UIGradient",
+            {
+                Color = ColorSequence.new {
+                    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)),
+                    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))
+                },
+                Rotation = 90,
+                Parent = button_color
+            }
+        )
+        --
+        local button_button = utility.new(
+            "TextButton",
+            {
+                AnchorPoint = Vector2.new(0, 0),
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 1, 0),
+                Position = UDim2.new(0, 0, 0, 0),
+                Text = name,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                TextSize = 12,
+                TextStrokeTransparency = 0,
+                Font = "RobotoMono",
+                ZIndex = 9909,
+                Parent = button_holder
+            }
+        )
+        --
+        return {button_holder, button_outline, button_button}
+    end
+    --
+    local close = makebutton("close", indent)
+    local login = makebutton("login", indent)
+    --
+    close[1].AnchorPoint = Vector2.new(0.5, 0)
+    close[1].Size = UDim2.new(0.5, 0, 0, 20)
+    close[1].Position = UDim2.new(0.3, 0, 0, 95)
+    --
+    login[1].AnchorPoint = Vector2.new(0.5, 0)
+    login[1].Size = UDim2.new(0.5, 0, 0, 20)
+    login[1].Position = UDim2.new(0.7, 0, 0, 95)
+    --
+    close[3].MouseButton1Down:Connect(function()
+        close[2].BorderColor3 = Color3.fromRGB(168, 52, 235)
+        outline:TweenPosition(UDim2.new(-1.5, 0, 0.5, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.75, true)
+        closed()
+        wait(0.05)
+        close[2].BorderColor3 = Color3.fromRGB(12, 12, 12)
+        wait(0.7)
+        screen:Remove()
+    end)
+    --
+    login[3].MouseButton1Down:Connect(function()
+        login[2].BorderColor3 = Color3.fromRGB(168, 52, 235)
+        local enteredKey = keyInput.Text
+
+        if enteredKey == correctKey then
+            login[2].BorderColor3 = Color3.fromRGB(0, 255, 0) -- green on success
+            logedin()
+            wait(0.05)
+            login[2].BorderColor3 = Color3.fromRGB(12, 12, 12)
+            wait(0.7)
+            outline:TweenPosition(UDim2.new(1.5, 0, 0.5, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.75, true)
+            wait(0.75)
+            screen:Remove()
+        else
+            login[2].BorderColor3 = Color3.fromRGB(255, 0, 0) -- red on fail
+            wait(0.3)
+            login[2].BorderColor3 = Color3.fromRGB(12, 12, 12)
         end
-	--
-	local outline = utility.new(
-		"Frame",
-		{
-			AnchorPoint = Vector2.new(0.5,0.5),
-			BackgroundColor3 = Color3.fromRGB(168, 52, 235),
-			BorderColor3 = Color3.fromRGB(12, 12, 12),
-			BorderSizePixel = 1,
-			Size = UDim2.new(0,300,0,90),
-			Position = UDim2.new(0.5,0,0.5,0),
-			ZIndex = 9900,
-			Visible = false,
-			Parent = screen
-		}
-	)
-	--
-	local outline2 = utility.new(
-		"Frame",
-		{
-			AnchorPoint = Vector2.new(0.5,0.5),
-			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-			BorderColor3 = Color3.fromRGB(12, 12, 12),
-			BorderSizePixel = 1,
-			Size = UDim2.new(1,-4,1,-4),
-			Position = UDim2.new(0.5,0,0.5,0),
-			ZIndex = 9901,
-			Parent = outline
-		}
-	)
-	--
-	local indent = utility.new(
-		"Frame",
-		{
-			AnchorPoint = Vector2.new(0.5,0.5),
-			BackgroundColor3 = Color3.fromRGB(20, 20, 20),
-			BorderColor3 = Color3.fromRGB(56, 56, 56),
-			BorderSizePixel = 1,
-			Size = UDim2.new(1,0,1,0),
-			Position = UDim2.new(0.5,0,0.5,0),
-			ZIndex = 9902,
-			Parent = outline2
-		}
-	)
-	--
-	local title = utility.new(
-		"TextLabel",
-		{
-			AnchorPoint = Vector2.new(0.5,0),
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1,-10,0,20),
-			Position = UDim2.new(0.5,0,0,0),
-			Font = "RobotoMono",
-			Text = name,
-			TextColor3 = Color3.fromRGB(168, 52, 235),
-			TextXAlignment = "Center",
-			TextSize = 12,
-			TextStrokeTransparency = 0,
-			ZIndex = 9903,
-			Parent = indent
-		}
-	)
-	--
-	local scripttitle = utility.new(
-		"TextLabel",
-		{
-			AnchorPoint = Vector2.new(0.5,0),
-			BackgroundTransparency = 1,
-			Size = UDim2.new(1,-10,0,20),
-			Position = UDim2.new(0.5,0,0,20),
-			Font = "RobotoMono",
-			Text = "Script: "..scriptname,
-			TextColor3 = Color3.fromRGB(255, 255, 255),
-			TextXAlignment = "Center",
-			TextSize = 12,
-			TextStrokeTransparency = 0,
-			ZIndex = 9903,
-			Parent = indent
-		}
-	)
-	--
-	local makebutton = function(name,parent)
-		local button_holder = utility.new(
-			"Frame",
-			{
-				BackgroundTransparency = 1,
-				BorderSizePixel = 0,
-				ZIndex = 9904,
-				Parent = parent
-			}
-		)
-		--
-		local button_outline = utility.new(
-			"Frame",
-			{
-				BackgroundColor3 = Color3.fromRGB(24, 24, 24),
-				BorderColor3 = Color3.fromRGB(12, 12, 12),
-				BorderMode = "Inset",
-				BorderSizePixel = 1,
-				Position = UDim2.new(0,0,0,0),
-				Size = UDim2.new(1,0,1,0),
-				ZIndex = 9905,
-				Parent = button_holder
-			}
-		)
-		--
-		local button_outline2 = utility.new(
-			"Frame",
-			{
-				BackgroundColor3 = Color3.fromRGB(24, 24, 24),
-				BorderColor3 = Color3.fromRGB(56, 56, 56),
-				BorderMode = "Inset",
-				BorderSizePixel = 1,
-				Position = UDim2.new(0,0,0,0),
-				Size = UDim2.new(1,0,1,0),
-				ZIndex = 9906,
-				Parent = button_outline
-			}
-		)
-		--
-		local button_color = utility.new(
-			"Frame",
-			{
-				AnchorPoint = Vector2.new(0,0),
-				BackgroundColor3 = Color3.fromRGB(30, 30, 30),
-				BorderSizePixel = 0,
-				Size = UDim2.new(1,0,0,0),
-				Position = UDim2.new(0,0,0,0),
-				ZIndex = 9907,
-				Parent = button_outline2
-			}
-		)
-		--
-		utility.new(
-			"UIGradient",
-			{
-				Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))},
-				Rotation = 90,
-				Parent = button_color
-			}
-		)
-		--
-		local button_button = utility.new(
-			"TextButton",
-			{
-				AnchorPoint = Vector2.new(0,0),
-				BackgroundTransparency = 1,
-				Size = UDim2.new(1,0,1,0),
-				Position = UDim2.new(0,0,0,0),
-				Text = name,
-				TextColor3 = Color3.fromRGB(255,255,255),
-				TextSize = 12,
-				TextStrokeTransparency = 0,
-				Font = "RobotoMono",
-				ZIndex = 9908,
-				Parent = button_holder
-			}
-		)
-		--
-		return {button_holder,button_outline,button_button}
-	end
-	--
-	local close = makebutton("close",indent)
-	local login = makebutton("login",indent)
-	--
-	close[1].AnchorPoint = Vector2.new(0.5,0)
-	close[1].Size = UDim2.new(0.5,0,0,20)
-	close[1].Position = UDim2.new(0.5,0,0,40)
-	--
-	login[1].AnchorPoint = Vector2.new(0.5,0)
-	login[1].Size = UDim2.new(0.5,0,0,20)
-	login[1].Position = UDim2.new(0.5,0,0,62)
-	--
-	close[3].MouseButton1Down:Connect(function()
-		close[2].BorderColor3 = Color3.fromRGB(168, 52, 235)
-		outline:TweenPosition(UDim2.new(-1.5,0,0.5,0),Enum.EasingDirection.Out,Enum.EasingStyle.Quad,0.75,true)
-		closed()
-		wait(0.05)
-		close[2].BorderColor3 = Color3.fromRGB(12,12,12)
-		wait(0.7)
-		screen:Remove()
-	end)
-	--
-	login[3].MouseButton1Down:Connect(function()
-		login[2].BorderColor3 = Color3.fromRGB(168, 52, 235)
-		outline:TweenPosition(UDim2.new(1.5,0,0.5,0),Enum.EasingDirection.Out,Enum.EasingStyle.Quad,0.75,true)
-		logedin()
-		wait(0.05)
-		login[2].BorderColor3 = Color3.fromRGB(12,12,12)
-		wait(0.7)
-		screen:Remove()
-	end)
-	--
-	loader = {
-		["outline"] = outline,
-		["outline2"] = outline2,
-		["indent"] = indent,
-		["title"] = title
-	}
-	--
-	setmetatable(loader,loaders)
-	return loader
+    end)
+    --
+    loader = {
+        ["outline"] = outline,
+        ["outline2"] = outline2,
+        ["indent"] = indent,
+        ["title"] = title,
+        ["keyInput"] = keyInput,
+        ["close"] = close,
+        ["login"] = login
+    }
+    --
+    setmetatable(loader, loaders)
+    return loader
 end
---
+
 function loaders:toggle()
-	self.outline.Visible = true
+    self.outline.Visible = true
 end
+
 --
 function watermarks:toggle(bool)
 	local watermark = self
