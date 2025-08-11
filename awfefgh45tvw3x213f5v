@@ -2978,7 +2978,7 @@ function sections:textbox(props)
 		"Frame",
 		{
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1,0,0,35),
+			Size = UDim2.new(1,0,0,25),   -- Reduced height from 35 to 25 for closer stacking
 			ZIndex = 2,
 			Parent = self.content
 		}
@@ -2992,7 +2992,7 @@ function sections:textbox(props)
 			BorderMode = "Inset",
 			BorderSizePixel = 1,
 			Size = UDim2.new(1,0,0,20),
-			Position = UDim2.new(0,0,0,15),
+			Position = UDim2.new(0,0,0,5),  -- Moved up from 15 to 5
 			Parent = textboxholder
 		}
 	)
@@ -3053,7 +3053,7 @@ function sections:textbox(props)
 			AnchorPoint = Vector2.new(0.5,0),
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1,-10,0,20),
-			Position = UDim2.new(0.5,0,0,15),
+			Position = UDim2.new(0.5,0,0,5),  -- Moved up from 15 to 5
 			Text = def ~= "" and def or placeholder,
 			TextColor3 = Color3.fromRGB(255,255,255),
 			TextSize = self.library.textsize,
@@ -3095,6 +3095,7 @@ function sections:textbox(props)
 	setmetatable(textbox, textboxs)
 	return textbox
 end
+
 
 --
 function sections:keybind(props)
