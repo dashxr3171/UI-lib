@@ -3011,9 +3011,11 @@ function sections:textbox(props)
     local spacing = props.spacing or 5
     local callback = props.callback or function() end
 
+    -- Convert title name to uppercase
+    name = string.upper(tostring(name))
+
     local textbox = {}
 
-    -- if text is a table, join lines and calculate height accordingly
     local lines = {}
     if typeof(text) == "table" then
         lines = text
@@ -3023,7 +3025,8 @@ function sections:textbox(props)
         lines = {}
     end
 
-    local subtitleHeight = 15 * #lines
+    local lineHeight = 15
+    local subtitleHeight = lineHeight * #lines
     local titleHeight = 25
     local totalHeight = titleHeight + subtitleHeight + spacing
 
@@ -3052,7 +3055,6 @@ function sections:textbox(props)
         }
     )
 
-    -- Create one TextLabel per line in 'text' array, stacked vertically
     local subtitles = {}
 
     for i, line in ipairs(lines) do
@@ -3060,8 +3062,8 @@ function sections:textbox(props)
             "TextLabel",
             {
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 0, 15),
-                Position = UDim2.new(0, 0, 0, titleHeight + (i-1) * 15),
+                Size = UDim2.new(1, 0, 0, lineHeight),
+                Position = UDim2.new(0, 0, 0, titleHeight + (i-1) * lineHeight),
                 Font = Enum.Font.Gotham,
                 Text = line,
                 TextColor3 = Color3.fromRGB(200, 200, 200),
@@ -3075,20 +3077,19 @@ function sections:textbox(props)
     end
 
     textbox = {
-        ["library"] = self.library,
-        ["title"] = title,
-        ["subtitles"] = subtitles,
-        ["callback"] = callback,
-        ["spacing"] = spacing,
-        ["holder"] = textboxholder
+        library = self.library,
+        title = title,
+        subtitles = subtitles,
+        callback = callback,
+        spacing = spacing,
+        holder = textboxholder
     }
 
     function textbox:setTitle(value)
-        self.title.Text = value
+        self.title.Text = string.upper(tostring(value))
     end
 
     function textbox:setSubtitles(t)
-        -- clear old subtitles
         for _, lbl in ipairs(self.subtitles) do
             lbl:Destroy()
         end
@@ -3103,7 +3104,7 @@ function sections:textbox(props)
             newLines = {}
         end
 
-        local subtitleHeight = 15 * #newLines
+        local subtitleHeight = lineHeight * #newLines
         local totalHeight = 25 + subtitleHeight + self.spacing
         self.holder.Size = UDim2.new(1, 0, 0, totalHeight)
 
@@ -3112,8 +3113,8 @@ function sections:textbox(props)
                 "TextLabel",
                 {
                     BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 0, 15),
-                    Position = UDim2.new(0, 0, 0, 25 + (i-1) * 15),
+                    Size = UDim2.new(1, 0, 0, lineHeight),
+                    Position = UDim2.new(0, 0, 0, 25 + (i-1) * lineHeight),
                     Font = Enum.Font.Gotham,
                     Text = line,
                     TextColor3 = Color3.fromRGB(200, 200, 200),
