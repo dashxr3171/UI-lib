@@ -2970,108 +2970,72 @@ function sections:textbox(props)
 	local name = props.name or props.Name or props.page or props.Page or props.pagename or props.Pagename or props.PageName or props.pageName or "new ui"
 	local def = props.def or props.Def or props.default or props.Default or ""
 	local placeholder = props.placeholder or props.Placeholder or props.placeHolder or props.PlaceHolder or props.placeholdertext or props.PlaceHolderText or props.PlaceHoldertext or props.placeHolderText or props.placeHoldertext or props.Placeholdertext or props.PlaceholderText or props.placeholderText or ""
-	local callback = props.callback or props.callBack or props.CallBack or props.Callback or function()end
+	local callback = props.callback or props.callBack or props.CallBack or props.Callback or function() end
+	
+	-- Custom vertical spacing between this and next textbox (default 5 px)
+	local spacing = props.spacing or 5
+	
 	-- // variables
 	local textbox = {}
-	-- // main
+	
+	-- total height: title (15) + label (20) + spacing (custom)
+	local totalHeight = 15 + 20 + spacing
+	
+	-- // main container frame for this textbox
 	local textboxholder = utility.new(
 		"Frame",
 		{
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1,0,0,25),   -- Reduced height from 35 to 25 for closer stacking
+			Size = UDim2.new(1, 0, 0, totalHeight),
 			ZIndex = 2,
 			Parent = self.content
 		}
 	)
-	--
-	local outline = utility.new(
-		"Frame",
-		{
-			BackgroundColor3 = Color3.fromRGB(24, 24, 24),
-			BorderColor3 = Color3.fromRGB(12, 12, 12),
-			BorderMode = "Inset",
-			BorderSizePixel = 1,
-			Size = UDim2.new(1,0,0,20),
-			Position = UDim2.new(0,0,0,5),  -- Moved up from 15 to 5
-			Parent = textboxholder
-		}
-	)
-	--
-	local outline2 = utility.new(
-		"Frame",
-		{
-			BackgroundColor3 = Color3.fromRGB(24, 24, 24),
-			BorderColor3 = Color3.fromRGB(56, 56, 56),
-			BorderMode = "Inset",
-			BorderSizePixel = 1,
-			Size = UDim2.new(1,0,1,0),
-			Parent = outline
-		}
-	)
-	--
-	local color = utility.new(
-		"Frame",
-		{
-			BackgroundColor3 = Color3.fromRGB(30, 30, 30),
-			BorderSizePixel = 0,
-			Size = UDim2.new(1,0,1,0),
-			Parent = outline2
-		}
-	)
-	--
-	local gradient = utility.new(
-		"UIGradient",
-		{
-			Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))},
-			Rotation = 90,
-			Parent = color
-		}
-	)
-	--
-	-- Remove the TextButton that was used to capture focus
-	-- Instead, no interaction needed for a label
 	
+	-- Title label (above the text)
 	local title = utility.new(
 		"TextLabel",
 		{
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1,0,0,15),
-			Position = UDim2.new(0,0,0,0),
+			Size = UDim2.new(1, 0, 0, 15),
+			Position = UDim2.new(0, 0, 0, 0),
 			Font = self.library.font,
 			Text = name,
-			TextColor3 = Color3.fromRGB(255,255,255),
+			TextColor3 = Color3.fromRGB(255, 255, 255),
 			TextSize = self.library.textsize,
 			TextStrokeTransparency = 0,
-			TextXAlignment = "Left",
+			TextXAlignment = Enum.TextXAlignment.Left,
 			Parent = textboxholder
 		}
 	)
-	--
+	
+	-- Main text label (simulating the textbox, below title)
 	local tlabel = utility.new(
 		"TextLabel",
 		{
-			AnchorPoint = Vector2.new(0.5,0),
+			AnchorPoint = Vector2.new(0.5, 0),
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1,-10,0,20),
-			Position = UDim2.new(0.5,0,0,5),  -- Moved up from 15 to 5
+			Size = UDim2.new(1, -10, 0, 20),
+			Position = UDim2.new(0.5, 0, 0, 15),  -- directly below title
 			Text = def ~= "" and def or placeholder,
-			TextColor3 = Color3.fromRGB(255,255,255),
+			TextColor3 = Color3.fromRGB(255, 255, 255),
 			TextSize = self.library.textsize,
 			TextStrokeTransparency = 0,
-			TextTruncate = "AtEnd",
+			TextTruncate = Enum.TextTruncate.AtEnd,
 			Font = self.library.font,
 			Parent = textboxholder
 		}
 	)
-	-- // textbox tbl
+	
+	-- // textbox object table
 	textbox = {
 		["library"] = self.library,
 		["tlabel"] = tlabel,
 		["current"] = def,
-		["callback"] = callback
+		["callback"] = callback,
+		["spacing"] = spacing,
+		["holder"] = textboxholder
 	}
-	
-	-- No focus or mouse events needed since it's a label
 	
 	-- setter method
 	function textbox:set(value)
@@ -3080,18 +3044,17 @@ function sections:textbox(props)
 		self.callback(value)
 	end
 	
-	--
+	-- pointer handling (if provided)
 	local pointer = props.pointer or props.Pointer or props.pointername or props.Pointername or props.PointerName or props.pointerName or nil
-	--
-	if pointer then
-		if self.pointers then
-			self.pointers[tostring(pointer)] = textbox
-		end
+	if pointer and self.pointers then
+		self.pointers[tostring(pointer)] = textbox
 	end
-	--
-	self.library.labels[#self.library.labels+1] = title
-	self.library.labels[#self.library.labels+1] = tlabel
-	--
+	
+	-- register labels for library (if needed)
+	self.library.labels[#self.library.labels + 1] = title
+	self.library.labels[#self.library.labels + 1] = tlabel
+	
+	-- set metatable
 	setmetatable(textbox, textboxs)
 	return textbox
 end
