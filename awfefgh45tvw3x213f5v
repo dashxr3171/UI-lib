@@ -3007,14 +3007,25 @@ end
 --
 function sections:textbox(props)
     local name = props.name or props.Name or "new ui"
-    local text = props.text or "" -- the smaller text below Name
+    local text = props.text or ""
     local spacing = props.spacing or 5
     local callback = props.callback or function() end
 
     local textbox = {}
 
-    -- total height: title (25) + subtitle text (15) + spacing (custom)
-    local totalHeight = 25 + 15 + spacing
+    -- if text is a table, join lines and calculate height accordingly
+    local lines = {}
+    if typeof(text) == "table" then
+        lines = text
+    elseif typeof(text) == "string" then
+        lines = {text}
+    else
+        lines = {}
+    end
+
+    local subtitleHeight = 15 * #lines
+    local titleHeight = 25
+    local totalHeight = titleHeight + subtitleHeight + spacing
 
     local textboxholder = utility.new(
         "Frame",
@@ -3026,43 +3037,47 @@ function sections:textbox(props)
         }
     )
 
-    -- Big bold Name label (title)
     local title = utility.new(
         "TextLabel",
         {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 25),
+            Size = UDim2.new(1, 0, 0, titleHeight),
             Position = UDim2.new(0, 0, 0, 0),
-            Font = Enum.Font.GothamBold,  -- big and bold font
+            Font = Enum.Font.GothamBold,
             Text = name,
             TextColor3 = Color3.fromRGB(255, 255, 255),
-            TextSize = self.library.textsize + 4, -- a bit bigger than normal
+            TextSize = self.library.textsize + 4,
             TextXAlignment = Enum.TextXAlignment.Left,
             Parent = textboxholder
         }
     )
 
-    -- Smaller text label below Name, aligned left
-    local subtitle = utility.new(
-        "TextLabel",
-        {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 15),
-            Position = UDim2.new(0, 0, 0, 25), -- below title
-            Font = Enum.Font.Gotham, -- normal font
-            Text = text,
-            TextColor3 = Color3.fromRGB(200, 200, 200), -- lighter color for subtitle
-            TextSize = self.library.textsize - 2, -- smaller size
-            TextXAlignment = Enum.TextXAlignment.Left,
-            TextWrapped = true,
-            Parent = textboxholder
-        }
-    )
+    -- Create one TextLabel per line in 'text' array, stacked vertically
+    local subtitles = {}
+
+    for i, line in ipairs(lines) do
+        local subtitle = utility.new(
+            "TextLabel",
+            {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 15),
+                Position = UDim2.new(0, 0, 0, titleHeight + (i-1) * 15),
+                Font = Enum.Font.Gotham,
+                Text = line,
+                TextColor3 = Color3.fromRGB(200, 200, 200),
+                TextSize = self.library.textsize - 2,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextWrapped = true,
+                Parent = textboxholder
+            }
+        )
+        table.insert(subtitles, subtitle)
+    end
 
     textbox = {
         ["library"] = self.library,
         ["title"] = title,
-        ["subtitle"] = subtitle,
+        ["subtitles"] = subtitles,
         ["callback"] = callback,
         ["spacing"] = spacing,
         ["holder"] = textboxholder
@@ -3072,15 +3087,49 @@ function sections:textbox(props)
         self.title.Text = value
     end
 
-    function textbox:setSubtitle(value)
-        self.subtitle.Text = value
+    function textbox:setSubtitles(t)
+        -- clear old subtitles
+        for _, lbl in ipairs(self.subtitles) do
+            lbl:Destroy()
+        end
+        self.subtitles = {}
+
+        local newLines = {}
+        if typeof(t) == "table" then
+            newLines = t
+        elseif typeof(t) == "string" then
+            newLines = {t}
+        else
+            newLines = {}
+        end
+
+        local subtitleHeight = 15 * #newLines
+        local totalHeight = 25 + subtitleHeight + self.spacing
+        self.holder.Size = UDim2.new(1, 0, 0, totalHeight)
+
+        for i, line in ipairs(newLines) do
+            local subtitle = utility.new(
+                "TextLabel",
+                {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 15),
+                    Position = UDim2.new(0, 0, 0, 25 + (i-1) * 15),
+                    Font = Enum.Font.Gotham,
+                    Text = line,
+                    TextColor3 = Color3.fromRGB(200, 200, 200),
+                    TextSize = self.library.textsize - 2,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    TextWrapped = true,
+                    Parent = self.holder
+                }
+            )
+            table.insert(self.subtitles, subtitle)
+        end
     end
 
     setmetatable(textbox, textboxs)
     return textbox
 end
-
-
 
 --
 function sections:keybind(props)
