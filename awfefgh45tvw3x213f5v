@@ -1823,8 +1823,10 @@ function sections:slider(props)
 	local measurement = props.measurement or props.Measurement or props.digit or props.Digit or props.calc or props.Calc or ""
 	local callback = props.callback or props.callBack or props.CallBack or props.Callback or function()end
 	def = math.clamp(def,min,max)
+
 	-- // variables
 	local slider = {}
+
 	-- // main
 	local sliderholder = utility.new(
 		"Frame",
@@ -1834,7 +1836,7 @@ function sections:slider(props)
 			Parent = self.content
 		}
 	)
-	--
+
 	local outline = utility.new(
 		"Frame",
 		{
@@ -1847,7 +1849,7 @@ function sections:slider(props)
 			Parent = sliderholder
 		}
 	)
-	--
+
 	local outline2 = utility.new(
 		"Frame",
 		{
@@ -1859,7 +1861,7 @@ function sections:slider(props)
 			Parent = outline
 		}
 	)	
-	--
+
 	local value = utility.new(
 		"TextLabel",
 		{
@@ -1875,7 +1877,7 @@ function sections:slider(props)
 			Parent = outline
 		}
 	)
-	--
+
 	local color = utility.new(
 		"Frame",
 		{
@@ -1885,16 +1887,19 @@ function sections:slider(props)
 			Parent = outline2
 		}
 	)
-	--
+
 	utility.new(
 		"UIGradient",
 		{
-			Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))},
+			Color = ColorSequence.new{
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))
+			},
 			Rotation = 90,
 			Parent = color
 		}
 	)
-	--
+
 	local slide = utility.new(
 		"Frame",
 		{
@@ -1906,16 +1911,19 @@ function sections:slider(props)
 		}
 	)
 	table.insert(self.library.themeitems["accent"]["BackgroundColor3"],slide)
-	--
+
 	utility.new(
 		"UIGradient",
 		{
-			Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))},
+			Color = ColorSequence.new{
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(199, 191, 204)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255))
+			},
 			Rotation = 90,
 			Parent = slide
 		}
 	)
-	--
+
 	local sliderbutton = utility.new(
 		"TextButton",
 		{
@@ -1927,7 +1935,7 @@ function sections:slider(props)
 			Parent = sliderholder
 		}
 	)
-	--
+
 	local title = utility.new(
 		"TextLabel",
 		{
@@ -1943,25 +1951,34 @@ function sections:slider(props)
 			Parent = sliderholder
 		}
 	)
+
 	-- // slider tbl
 	slider = {
-		["library"] = self.library,
-		["outline"] = outline,
-		["sliderbutton"] = sliderbutton,
-		["title"] = title,
-		["value"] = value,
-		["slide"] = slide,
-		["color"] = color,
-		["max"] = max,
-		["min"] = min,
-		["current"] = def,
-		["measurement"] = measurement,
-		["tick"] = ticking,
-		["rounding"] = rounding,
-		["callback"] = callback
+		library = self.library,
+		outline = outline,
+		sliderbutton = sliderbutton,
+		title = title,
+		value = value,
+		slide = slide,
+		color = color,
+		max = max,
+		min = min,
+		current = def,
+		measurement = measurement,
+		tick = ticking,
+		rounding = rounding,
+		callback = callback,
+		sliderholder = sliderholder
 	}
-	--
-	local function slide()
+
+	-- Destroy method for slider
+	function slider:destroy()
+		if self.sliderholder and self.sliderholder.Destroy then
+			self.sliderholder:Destroy()
+		end
+	end
+
+	local function slideFunc()
 		local size = math.clamp(plr:GetMouse().X - slider.color.AbsolutePosition.X ,0 ,slider.color.AbsoluteSize.X)
 		local result = (slider.max - slider.min) / slider.color.AbsoluteSize.X * size + slider.min
 		if slider.rounding then
@@ -1986,20 +2003,20 @@ function sections:slider(props)
 			end
 		end
 	end
-	--
+
 	sliderbutton.MouseButton1Down:Connect(function()
 		slider.holding = true
-		slide()
+		slideFunc()
 		table.insert(self.library.themeitems["accent"]["BorderColor3"],outline)
 		outline.BorderColor3 = self.library.theme.accent
 	end)
-	--
+
 	uis.InputChanged:Connect(function()
 		if slider.holding then
-			slide()
+			slideFunc()
 		end
 	end)
-	--
+
 	uis.InputEnded:Connect(function(Input)
 		if Input.UserInputType.Name == 'MouseButton1' and slider.holding then
 			slider.holding = false
@@ -2010,21 +2027,21 @@ function sections:slider(props)
 			end
 		end
 	end)
-	--
+
 	local pointer = props.pointer or props.Pointer or props.pointername or props.Pointername or props.PointerName or props.pointerName or nil
-	--
 	if pointer then
 		if self.pointers then
 			self.pointers[tostring(pointer)] = slider
 		end
 	end
-	--
+
 	self.library.labels[#self.library.labels+1] = title
 	self.library.labels[#self.library.labels+1] = value
-	-- // metatable indexing + return
+
 	setmetatable(slider, sliders)
 	return slider
 end
+
 --
 function sliders:set(value)
 	local size = math.clamp((self.color.AbsoluteSize.X / (self.max - self.min) * (value - self.min)) ,0 ,self.color.AbsoluteSize.X)
