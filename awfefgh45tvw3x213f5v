@@ -1041,6 +1041,8 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 		{object = Search, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
 		{object = Search.Parent, property =  "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
 	})
+
+
 	
 	List.BackgroundColor3 = Theme.Line
 	Inner.BackgroundColor3 = Theme.PrimaryBackgroundColor
@@ -1690,6 +1692,67 @@ Theme:registerToObjects({
 	{object = Tabs , property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
 	{object = Filler , property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
 	{object = Title , property = "TextColor3", theme = {"PrimaryTextColor"}},
+	{object = Assets.Pages.Fade, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
+})
+
+-- Enhanced top section styling
+local function createEnhancedTopBar()
+	-- Add gradient background to the main title area
+	local TopGradient = Instance.new("UIGradient")
+	TopGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 55)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 35, 45))
+	}
+	TopGradient.Rotation = 90
+	TopGradient.Parent = Tabs
+	
+	-- Enhanced title styling
+	Title.Font = Enum.Font.GothamBold
+	Title.TextSize = 18
+	Title.TextStrokeTransparency = 0.8
+	Title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	
+	-- Add subtle shadow effect to title
+	local TitleShadow = Title:Clone()
+	TitleShadow.Name = "TitleShadow"
+	TitleShadow.Position = UDim2.new(0, 2, 0, 2)
+	TitleShadow.TextColor3 = Color3.fromRGB(0, 0, 0)
+	TitleShadow.TextTransparency = 0.7
+	TitleShadow.ZIndex = Title.ZIndex - 1
+	TitleShadow.Parent = Title.Parent
+	
+	-- Enhanced line styling
+	Line.Size = UDim2.new(1, 0, 0, 2)
+	local LineGradient = Instance.new("UIGradient")
+	LineGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 150, 255)),
+		ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 100, 255)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 100, 150))
+	}
+	LineGradient.Parent = Line
+	
+	-- Add corner rounding to main components
+	local TabsCorner = Instance.new("UICorner")
+	TabsCorner.CornerRadius = UDim.new(0, 8)
+	TabsCorner.Parent = Tabs
+	
+	local BackgroundCorner = Instance.new("UICorner")
+	BackgroundCorner.CornerRadius = UDim.new(0, 8)
+	BackgroundCorner.Parent = Background
+end
+
+-- Call the function after your existing setup
+createEnhancedTopBar()
+
+-- Update Theme registration to include new elements
+Theme:registerToObjects({
+	{object = Glow, property = "ImageColor3", theme = {"PrimaryBackgroundColor"}},
+	{object = Background, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
+	{object = Line , property = "BackgroundColor3", theme = {"Line"}},
+	{object = Tabs , property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
+	{object = Filler , property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
+	{object = Title , property = "TextColor3", theme = {"PrimaryTextColor"}},
+	{object = Title.Parent.TitleShadow, property = "TextColor3", theme = {"Line"}}, -- Shadow follows line color
 	{object = Assets.Pages.Fade, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
 })
 
