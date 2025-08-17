@@ -436,17 +436,35 @@ function Library:createSubTab(options: table)
 	SubTab.Font = Enum.Font.GothamMedium
 	SubTab.TextSize = 14
 	SubTab.ZIndex = 1 -- Base ZIndex for layering
+
+	-- Calculate SubTab size with enhanced padding FIRST
+	local TextService = game:GetService("TextService")
+	local textSize = TextService:GetTextSize(options.text, 14, Enum.Font.GothamMedium, Vector2.new(math.huge, 32))
+	SubTab.Size = UDim2.new(0, textSize.X + 24, 0, 28)
+
+	-- Calculate subTab position with very tight spacing
+	local subTabCount = 0
 	
+	-- Count existing SubTabs to determine position
+	for _, child in ipairs(ScrollingFrame:GetChildren()) do
+		if child.Name == "SubTab" then
+			subTabCount = subTabCount + 1
+		end
+	end
+
+	-- Simple position calculation - each tab is 2 pixels apart
+	local subTabPosition = subTabCount * 2
+
 	-- Add subtle shadow effect (as sibling, not child)
 	local Shadow = Instance.new("Frame")
 	Shadow.Name = "Shadow_" .. options.text
-	Shadow.Size = UDim2.new(0, textSize.X + 28, 0, 32) -- Match tab size plus shadow offset
-	Shadow.Position = UDim2.new(0, subTabPosition + 2, 0, 2) -- Offset down and right from tab position
+	Shadow.Size = UDim2.new(0, textSize.X + 24, 0, 28) -- Match tab size exactly
+	Shadow.Position = UDim2.new(0, subTabPosition + 2, 0, 2) -- Offset down and right
 	Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	Shadow.BackgroundTransparency = 0.85
 	Shadow.BorderSizePixel = 0
 	Shadow.ZIndex = SubTab.ZIndex - 1
-	Shadow.Parent = ScrollingFrame -- Same parent as SubTab, not as child
+	Shadow.Parent = ScrollingFrame
 	
 	-- Add icon/indicator for active state
 	local ActiveIndicator = Instance.new("Frame")
@@ -488,40 +506,6 @@ function Library:createSubTab(options: table)
 	Padding.PaddingBottom = UDim.new(0, 6)
 	Padding.Parent = SubTab
 
-	-- Calculate SubTab size with enhanced padding
-	local TextService = game:GetService("TextService")
-	local textSize = TextService:GetTextSize(options.text, 14, Enum.Font.GothamMedium, Vector2.new(math.huge, 32))
-	SubTab.Size = UDim2.new(0, textSize.X + 24, 0, 28) -- Reduced height and padding
-
-	-- Add padding for better text positioning
-	local Padding = Instance.new("UIPadding")
-	Padding.PaddingLeft = UDim.new(0, 12)
-	Padding.PaddingRight = UDim.new(0, 12)
-	Padding.PaddingTop = UDim.new(0, 6)
-	Padding.PaddingBottom = UDim.new(0, 6)
-	Padding.Parent = SubTab
-
-	-- Calculate subTab position with very tight spacing
-	local subTabIndex, subTabPosition = 0, 0
-
-	for index, subTab in ipairs(ScrollingFrame:GetChildren()) do
-		if subTab.Name ~= "SubTab" then
-			continue
-		end
-
-		subTabIndex += 1
-
-		if subTabIndex == 1 then
-			subTabPosition = 0 -- No initial padding
-		else				
-			-- Much simpler calculation - just add a tiny gap
-			subTabPosition += 2 -- Only 2 pixels between tabs
-		end
-	end
-
-	-- Now position the shadow correctly
-	Shadow.Position = UDim2.new(0, subTabPosition + 2, 0, 2)
-
 	-- Enhanced animation functions with smooth transitions
 	local function tweenSubTabAssets(subTab, textColor, textTransparency: number, backgroundColor, borderColor, borderTransparency, scaleEffect)
 		local originalSize = subTab.Size
@@ -556,7 +540,7 @@ function Library:createSubTab(options: table)
 		
 		-- Animate active indicator and shadow
 		local indicator = subTab:FindFirstChild("ActiveIndicator")
-		local shadow = ScrollingFrame:FindFirstChild("Shadow_" .. options.text) -- Look for shadow in ScrollingFrame
+		local shadow = ScrollingFrame:FindFirstChild("Shadow_" .. options.text)
 		
 		if indicator then
 			local indicatorTween = Utility:tween(indicator, {
