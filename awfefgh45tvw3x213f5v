@@ -438,28 +438,28 @@ function Library:createSubTab(options: table)
 	
 	-- Add rounded corners for modern look
 	local Corner = Instance.new("UICorner")
-	Corner.CornerRadius = UDim.new(0, 8)
+	Corner.CornerRadius = UDim.new(0, 4)
 	Corner.Parent = SubTab
 	
 	-- Add subtle border effect
 	local Border = Instance.new("UIStroke")
 	Border.Color = Theme.Line
 	Border.Thickness = 1
-	Border.Transparency = 0.7
+	Border.Transparency = 1 -- Start fully transparent
 	Border.Parent = SubTab
 	
 	-- Add padding for better text positioning
 	local Padding = Instance.new("UIPadding")
-	Padding.PaddingLeft = UDim.new(0, 16)
-	Padding.PaddingRight = UDim.new(0, 16)
-	Padding.PaddingTop = UDim.new(0, 8)
-	Padding.PaddingBottom = UDim.new(0, 8)
+	Padding.PaddingLeft = UDim.new(0, 12)
+	Padding.PaddingRight = UDim.new(0, 12)
+	Padding.PaddingTop = UDim.new(0, 6)
+	Padding.PaddingBottom = UDim.new(0, 6)
 	Padding.Parent = SubTab
 
 	-- Calculate SubTab size with enhanced padding
 	local TextService = game:GetService("TextService")
 	local textSize = TextService:GetTextSize(options.text, 14, Enum.Font.GothamMedium, Vector2.new(math.huge, 32))
-	SubTab.Size = UDim2.new(0, textSize.X + 32, 0, 32) -- Fixed height for consistency
+	SubTab.Size = UDim2.new(0, textSize.X + 24, 0, 28) -- Reduced height and padding
 
 	-- Calculate subTab position with better spacing
 	local subTabIndex, subTabPosition = 0, 0
@@ -475,7 +475,7 @@ function Library:createSubTab(options: table)
 			subTabPosition = 8 -- Add initial padding
 		else				
 			local condition, object = Utility:lookBeforeChildOfObject(index, ScrollingFrame, "SubTab")
-			subTabPosition += subTab.Size.X.Offset + 12 -- Increased spacing between tabs
+			subTabPosition += subTab.Size.X.Offset + 6 -- Reduced spacing between tabs
 
 			if condition then
 				subTabPosition -= (subTab.Size.X.Offset - object.Size.X.Offset)
@@ -496,7 +496,7 @@ function Library:createSubTab(options: table)
 		}, 0.25, "Quart", "Out")
 		
 		local sizeTween = Utility:tween(subTab, {
-			Size = UDim2.new(0, originalSize.X.Offset * targetScale, 0, 32)
+			Size = UDim2.new(0, originalSize.X.Offset * targetScale, 0, 28)
 		}, 0.25, "Back", "Out")
 		
 		local borderTween = Utility:tween(Border, {
@@ -508,32 +508,9 @@ function Library:createSubTab(options: table)
 		sizeTween:Play()
 		borderTween:Play()
 		
-		-- Add subtle glow effect for active state
+		-- Remove glow effect completely
 		if scaleEffect then
-			local glow = subTab:FindFirstChild("Glow")
-			if not glow then
-				glow = Instance.new("Frame")
-				glow.Name = "Glow"
-				glow.Size = UDim2.new(1, 4, 1, 4)
-				glow.Position = UDim2.new(0.5, 0, 0.5, 0)
-				glow.AnchorPoint = Vector2.new(0.5, 0.5)
-				glow.BackgroundColor3 = Theme.PrimaryColor
-				glow.BackgroundTransparency = 0.9
-				glow.BorderSizePixel = 0
-				glow.ZIndex = subTab.ZIndex - 1
-				glow.Parent = subTab
-				
-				local glowCorner = Instance.new("UICorner")
-				glowCorner.CornerRadius = UDim.new(0, 10)
-				glowCorner.Parent = glow
-			end
-			
-			Utility:tween(glow, {BackgroundTransparency = 0.7}, 0.25):Play()
-		else
-			local glow = subTab:FindFirstChild("Glow")
-			if glow then
-				Utility:tween(glow, {BackgroundTransparency = 1}, 0.25):Play()
-			end
+			-- Just the scale effect, no glow
 		end
 	end
 
@@ -565,7 +542,7 @@ function Library:createSubTab(options: table)
 				0, 
 				Theme.PrimaryColor, -- Primary color background
 				Theme.PrimaryColor, -- Matching border
-				0.2,
+				0.3,
 				true -- Scale effect enabled
 			)
 		end, ExpectedType = "function"},
@@ -577,7 +554,7 @@ function Library:createSubTab(options: table)
 				0, 
 				Theme.SecondaryBackgroundColor, -- Normal background
 				Theme.Line, -- Subtle border
-				0.7,
+				1, -- Fully transparent border
 				false -- No scale effect
 			)
 		end, ExpectedType = "function"},
@@ -593,7 +570,7 @@ function Library:createSubTab(options: table)
 					math.min(255, Theme.SecondaryBackgroundColor.B * 255 + 15)
 				), -- Slightly lighter background
 				Theme.PrimaryColor, -- Primary color border
-				0.3,
+				0.5,
 				false -- No scale on hover
 			)
 		end, ExpectedType = "function"},
@@ -605,7 +582,7 @@ function Library:createSubTab(options: table)
 				0, 
 				Theme.SecondaryBackgroundColor,
 				Theme.Line,
-				0.7,
+				1, -- Return to fully transparent border
 				false
 			)
 		end, ExpectedType = "function"},
