@@ -472,10 +472,10 @@ function Library:createSubTab(options: table)
 		subTabIndex += 1
 
 		if subTabIndex == 1 then
-			subTabPosition = 8 -- Add initial padding
+			subTabPosition = 4 -- Reduced initial padding
 		else				
 			local condition, object = Utility:lookBeforeChildOfObject(index, ScrollingFrame, "SubTab")
-			subTabPosition += subTab.Size.X.Offset + 2 -- Much closer spacing between tabs
+			subTabPosition += subTab.Size.X.Offset - 2 -- Negative spacing to overlap slightly
 
 			if condition then
 				subTabPosition -= (subTab.Size.X.Offset - object.Size.X.Offset)
