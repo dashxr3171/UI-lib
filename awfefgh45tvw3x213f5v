@@ -443,17 +443,14 @@ function Library:createSubTab(options: table)
 	SubTab.Size = UDim2.new(0, textSize.X + 24, 0, 28)
 
 	-- Calculate subTab position with very tight spacing
-	local subTabCount = 0
+	local subTabPosition = 0
 	
-	-- Count existing SubTabs to determine position
+	-- Calculate position based on existing tabs
 	for _, child in ipairs(ScrollingFrame:GetChildren()) do
 		if child.Name == "SubTab" then
-			subTabCount = subTabCount + 1
+			subTabPosition = subTabPosition + child.Size.X.Offset + 1 -- Only 1 pixel gap
 		end
 	end
-
-	-- Simple position calculation - each tab is 2 pixels apart
-	local subTabPosition = subTabCount * 2
 
 	-- Add subtle shadow effect (as sibling, not child)
 	local Shadow = Instance.new("Frame")
@@ -702,81 +699,6 @@ function Library:createSubTab(options: table)
 
 	local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = options.sectionStyle}, Library)
 	return PassingContext
-end
-
-function Library:createToggle(options: table, parent, scrollingFrame)
-	Utility:validateOptions(options, {
-		text = {Default = "Toggle", ExpectedType = "string"},
-		state = {Default = false, ExpectedType = "boolean"},
-		callback = {Default = function() end, ExpectedType = "function"}
-	})
-
-	scrollingFrame = self.ScrollingFrame or scrollingFrame
-
-	local Toggle = Assets.Elements.Toggle:Clone()
-	Toggle.Visible = true
-	Toggle.Parent = parent or self.Section
-
-	local TextLabel = Toggle.TextLabel
-	TextLabel.Text = options.text
-	
-	local ImageButton = TextLabel.ImageButton
-	local TextButton = TextLabel.TextButton
-	local Background = TextButton.Background
-	local Circle = Background.Circle
-
-	local function tweenToggleAssets(backgroundColor: Color3, circleColor: Color3, anchorPoint: Vector2, position: UDim2)
-		Utility:tween(Background, {BackgroundColor3 = backgroundColor}, 0.2):Play()
-		Utility:tween(Circle, {BackgroundColor3 = circleColor, AnchorPoint = anchorPoint, Position = position}, 0.2):Play()
-	end
-	
-	local circleOn = false
-
-	local Context = Utility:validateContext({
-		state = {Value = options.state, ExpectedType = "boolean"},
-		callback = {Value = options.callback, ExpectedType = "function"},
-
-		switchOff = {Value = function()
-			tweenToggleAssets(Theme.SecondaryBackgroundColor, Theme.PrimaryBackgroundColor, Vector2.new(0, 0.5), UDim2.fromScale(0, 0.5), 0.2)
-			circleOn = false
-		end, ExpectedType = "function"},
-
-		switchOn = {Value = function()
-			tweenToggleAssets(Theme.PrimaryColor, Theme.TertiaryBackgroundColor, Vector2.new(1, 0.5), UDim2.fromScale(1, 0.5), 0.2)
-			circleOn = true
-		end, ExpectedType = "function"}
-	})
-
-	local Toggle = Modules.Toggle.new(Context)
-	Toggle:updateState({state = options.state})
-	TextButton.MouseButton1Down:Connect(Toggle:switch())
-	
-	Theme:registerToObjects({
-		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
-		{object = Background, property = "BackgroundColor3", theme = {"PrimaryColor", "SecondaryBackgroundColor"}},
-		{object = Circle, property = "BackgroundColor3", theme = {"TertiaryBackgroundColor", "PrimaryBackgroundColor"}, circleOn = circleOn},
-		{object = ImageButton, property = "ImageColor3", theme = {"SecondaryTextColor"}},
-	})
-
-	shared.Flags.Toggle[options.text] = {
-		getState = function(self)
-			return Context.state
-		end,
-
-		updateState = function(self, options: table)
-			Toggle:updateState(options)
-		end,
-	}
-
-	return self:createAddons(options.text, ImageButton, scrollingFrame, {
-		getState = function(self)
-			return Context.state
-		end,
-
-		updateState = function(self, options: table)
-			Toggle:updateState(options)
-		end,
-	})
 end
 
 function Library:createSlider(options: table, parent, scrollingFrame)
