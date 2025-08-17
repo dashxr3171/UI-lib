@@ -407,7 +407,7 @@ function Library:createTab(options: table)
 	return PassingContext
 end
 
-function Library:createSubTab(options: table)
+ffunction Library:createSubTab(options: table)
 	-- Use provided options, or fall back to defaults if not provided	
 	Utility:validateOptions(options, {
 		sectionStyle = {Default = "Double", ExpectedType = "string"},
@@ -504,10 +504,10 @@ function Library:createSubTab(options: table)
 		subTabIndex += 1
 
 		if subTabIndex == 1 then
-			subTabPosition = 2 -- Minimal initial padding
+			subTabPosition = 0 -- No initial padding
 		else				
 			local condition, object = Utility:lookBeforeChildOfObject(index, ScrollingFrame, "SubTab")
-			subTabPosition += subTab.Size.X.Offset - 6 -- More negative spacing for tighter overlap
+			subTabPosition += subTab.Size.X.Offset - 15 -- Much more negative spacing for very tight overlap
 
 			if condition then
 				subTabPosition -= (subTab.Size.X.Offset - object.Size.X.Offset)
