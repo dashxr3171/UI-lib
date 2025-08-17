@@ -435,11 +435,43 @@ function Library:createSubTab(options: table)
 	SubTab.BorderSizePixel = 0
 	SubTab.Font = Enum.Font.GothamMedium
 	SubTab.TextSize = 14
+	SubTab.ZIndex = 1 -- Base ZIndex for layering
+	
+	-- Add subtle shadow effect
+	local Shadow = Instance.new("Frame")
+	Shadow.Name = "Shadow"
+	Shadow.Size = UDim2.new(1, 2, 1, 2)
+	Shadow.Position = UDim2.new(0, 1, 0, 1)
+	Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	Shadow.BackgroundTransparency = 0.9
+	Shadow.BorderSizePixel = 0
+	Shadow.ZIndex = SubTab.ZIndex - 1
+	Shadow.Parent = SubTab
+	
+	-- Add icon/indicator for active state
+	local ActiveIndicator = Instance.new("Frame")
+	ActiveIndicator.Name = "ActiveIndicator"
+	ActiveIndicator.Size = UDim2.new(0, 3, 1, -6)
+	ActiveIndicator.Position = UDim2.new(0, 2, 0, 3)
+	ActiveIndicator.BackgroundColor3 = Theme.PrimaryColor
+	ActiveIndicator.BorderSizePixel = 0
+	ActiveIndicator.BackgroundTransparency = 1
+	ActiveIndicator.Parent = SubTab
 	
 	-- Add rounded corners for modern look
 	local Corner = Instance.new("UICorner")
 	Corner.CornerRadius = UDim.new(0, 4)
 	Corner.Parent = SubTab
+	
+	-- Add shadow corner
+	local ShadowCorner = Instance.new("UICorner")
+	ShadowCorner.CornerRadius = UDim.new(0, 4)
+	ShadowCorner.Parent = Shadow
+	
+	-- Add indicator corner
+	local IndicatorCorner = Instance.new("UICorner")
+	IndicatorCorner.CornerRadius = UDim.new(0, 2)
+	IndicatorCorner.Parent = ActiveIndicator
 	
 	-- Add subtle border effect
 	local Border = Instance.new("UIStroke")
@@ -472,10 +504,10 @@ function Library:createSubTab(options: table)
 		subTabIndex += 1
 
 		if subTabIndex == 1 then
-			subTabPosition = 4 -- Reduced initial padding
+			subTabPosition = 2 -- Minimal initial padding
 		else				
 			local condition, object = Utility:lookBeforeChildOfObject(index, ScrollingFrame, "SubTab")
-			subTabPosition += subTab.Size.X.Offset - 2 -- Negative spacing to overlap slightly
+			subTabPosition += subTab.Size.X.Offset - 6 -- More negative spacing for tighter overlap
 
 			if condition then
 				subTabPosition -= (subTab.Size.X.Offset - object.Size.X.Offset)
@@ -486,7 +518,8 @@ function Library:createSubTab(options: table)
 	-- Enhanced animation functions with smooth transitions
 	local function tweenSubTabAssets(subTab, textColor, textTransparency: number, backgroundColor, borderColor, borderTransparency, scaleEffect)
 		local originalSize = subTab.Size
-		local targetScale = scaleEffect and 1.05 or 1
+		local targetScale = scaleEffect and 1.03 or 1
+		local targetZIndex = scaleEffect and 5 or 1
 		
 		-- Stop any existing tweens first to prevent conflicts
 		for _, tween in pairs(subTab:GetChildren()) do
@@ -494,6 +527,9 @@ function Library:createSubTab(options: table)
 				tween:Cancel()
 			end
 		end
+		
+		-- Set ZIndex for layering
+		subTab.ZIndex = targetZIndex
 		
 		-- Create smooth color and size transitions
 		local colorTween = Utility:tween(subTab, {
@@ -511,14 +547,27 @@ function Library:createSubTab(options: table)
 			Transparency = borderTransparency
 		}, 0.2, "Quart", "Out")
 		
+		-- Animate active indicator and shadow
+		local indicator = subTab:FindFirstChild("ActiveIndicator")
+		local shadow = subTab:FindFirstChild("Shadow")
+		
+		if indicator then
+			local indicatorTween = Utility:tween(indicator, {
+				BackgroundTransparency = scaleEffect and 0 or 1
+			}, 0.2, "Quart", "Out")
+			indicatorTween:Play()
+		end
+		
+		if shadow then
+			local shadowTween = Utility:tween(shadow, {
+				BackgroundTransparency = scaleEffect and 0.7 or 0.9
+			}, 0.2, "Quart", "Out")
+			shadowTween:Play()
+		end
+		
 		colorTween:Play()
 		sizeTween:Play()
 		borderTween:Play()
-		
-		-- Remove glow effect completely
-		if scaleEffect then
-			-- Just the scale effect, no glow
-		end
 	end
 
 	local function autoCanvasSizeSubPageScrollingFrame()
@@ -656,6 +705,7 @@ function Library:createSubTab(options: table)
 		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "TertiaryBackgroundColor"}},
 		{object = SubTab, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor", "PrimaryColor"}},
 		{object = Border, property = "Color", theme = {"Line", "PrimaryColor"}},
+		{object = ActiveIndicator, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
 	}, "SubTab")
 
