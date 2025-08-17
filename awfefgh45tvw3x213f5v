@@ -493,7 +493,7 @@ function Library:createSubTab(options: table)
 	local textSize = TextService:GetTextSize(options.text, 14, Enum.Font.GothamMedium, Vector2.new(math.huge, 32))
 	SubTab.Size = UDim2.new(0, textSize.X + 24, 0, 28) -- Reduced height and padding
 
-	-- Calculate subTab position with better spacing
+	-- Calculate subTab position with very tight spacing
 	local subTabIndex, subTabPosition = 0, 0
 
 	for index, subTab in ipairs(ScrollingFrame:GetChildren()) do
@@ -506,12 +506,8 @@ function Library:createSubTab(options: table)
 		if subTabIndex == 1 then
 			subTabPosition = 0 -- No initial padding
 		else				
-			local condition, object = Utility:lookBeforeChildOfObject(index, ScrollingFrame, "SubTab")
-			subTabPosition += subTab.Size.X.Offset - 15 -- Much more negative spacing for very tight overlap
-
-			if condition then
-				subTabPosition -= (subTab.Size.X.Offset - object.Size.X.Offset)
-			end		
+			-- Much simpler calculation - just add a tiny gap
+			subTabPosition += 2 -- Only 2 pixels between tabs
 		end
 	end
 
