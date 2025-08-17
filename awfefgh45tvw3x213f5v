@@ -440,10 +440,10 @@ function Library:createSubTab(options: table)
 	-- Add subtle shadow effect
 	local Shadow = Instance.new("Frame")
 	Shadow.Name = "Shadow"
-	Shadow.Size = UDim2.new(1, -2, 1, -2) -- Slightly smaller than the tab
+	Shadow.Size = UDim2.new(1, 4, 1, 4) -- Larger shadow that extends beyond the tab
 	Shadow.Position = UDim2.new(0, 2, 0, 2) -- Offset down and right
 	Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	Shadow.BackgroundTransparency = 0.95 -- Much more transparent
+	Shadow.BackgroundTransparency = 0.85 -- More visible shadow
 	Shadow.BorderSizePixel = 0
 	Shadow.ZIndex = SubTab.ZIndex - 1
 	Shadow.Parent = SubTab
@@ -556,7 +556,7 @@ function Library:createSubTab(options: table)
 		
 		if shadow then
 			local shadowTween = Utility:tween(shadow, {
-				BackgroundTransparency = scaleEffect and 0.85 or 0.95
+				BackgroundTransparency = scaleEffect and 0.7 or 0.85
 			}, 0.2, "Quart", "Out")
 			shadowTween:Play()
 		end
