@@ -415,147 +415,50 @@ function Library:createSubTab(options: table)
 	})
 
 	local Moveable = self.Page.SubTabs.Frame.Moveable
-	local ScrollingFrame = Moveable.Parent.ScrollingFrame
+	local Underline, ScrollingFrame = Moveable.Underline, Moveable.Parent.ScrollingFrame
 
 	local SubPage = Assets.Pages.SubPage:Clone()
 	SubPage.Parent = self.Page
 
 	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
 
-	-- Create enhanced SubTab with modern styling
 	local SubTab = Assets.Pages.SubTab:Clone()
 	SubTab.Visible = true
 	SubTab.Text = options.text
 	SubTab.TextColor3 = Theme.SecondaryTextColor
 	SubTab.Parent = ScrollingFrame
-	
-	-- Enhanced styling properties
-	SubTab.BackgroundTransparency = 0
-	SubTab.BackgroundColor3 = Theme.SecondaryBackgroundColor
-	SubTab.BorderSizePixel = 0
-	SubTab.Font = Enum.Font.GothamMedium
-	SubTab.TextSize = 14
-	SubTab.ZIndex = 1 -- Base ZIndex for layering
 
-	-- Calculate SubTab size with enhanced padding FIRST
 	local TextService = game:GetService("TextService")
-	local textSize = TextService:GetTextSize(options.text, 14, Enum.Font.GothamMedium, Vector2.new(math.huge, 32))
-	SubTab.Size = UDim2.new(0, textSize.X + 24, 0, 28)
+	SubTab.Size = UDim2.new(0, TextService:GetTextSize(options.text, 15, Enum.Font.MontserratMedium, SubTab.AbsoluteSize).X, 1, 0)
 
-	-- Calculate subTab position with very tight spacing
-	local subTabPosition = 0
-	
-	-- Calculate position based on existing tabs
-	for _, child in ipairs(ScrollingFrame:GetChildren()) do
-		if child.Name == "SubTab" then
-			subTabPosition = subTabPosition + child.Size.X.Offset + 1 -- Only 1 pixel gap
+	-- Calculate subTab position to position underline
+	local subTabIndex, subTabPosition = 0, 0
+
+	for index, subTab in ipairs(ScrollingFrame:GetChildren()) do
+		if subTab.Name ~= "SubTab" then
+			continue
+		end
+
+		subTabIndex += 1
+
+		if subTabIndex == 1 then
+			subTabPosition = 0
+		else				
+			local condition, object = Utility:lookBeforeChildOfObject(index, ScrollingFrame, "SubTab")
+			subTabPosition += subTab.Size.X.Offset + ScrollingFrame.UIListLayout.Padding.Offset
+
+			if condition then
+				subTabPosition -= (subTab.Size.X.Offset - object.Size.X.Offset)
+			end		
 		end
 	end
 
-	-- Add subtle shadow effect (as sibling, not child)
-	local Shadow = Instance.new("Frame")
-	Shadow.Name = "Shadow_" .. options.text
-	Shadow.Size = UDim2.new(0, textSize.X + 24, 0, 28) -- Match tab size exactly
-	Shadow.Position = UDim2.new(0, subTabPosition + 2, 0, 2) -- Offset down and right
-	Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	Shadow.BackgroundTransparency = 0.85
-	Shadow.BorderSizePixel = 0
-	Shadow.ZIndex = SubTab.ZIndex - 1
-	Shadow.Parent = ScrollingFrame
-	
-	-- Add icon/indicator for active state
-	local ActiveIndicator = Instance.new("Frame")
-	ActiveIndicator.Name = "ActiveIndicator"
-	ActiveIndicator.Size = UDim2.new(0, 3, 1, -6)
-	ActiveIndicator.Position = UDim2.new(0, 2, 0, 3)
-	ActiveIndicator.BackgroundColor3 = Theme.PrimaryColor
-	ActiveIndicator.BorderSizePixel = 0
-	ActiveIndicator.BackgroundTransparency = 1
-	ActiveIndicator.Parent = SubTab
-	
-	-- Add rounded corners for modern look
-	local Corner = Instance.new("UICorner")
-	Corner.CornerRadius = UDim.new(0, 4)
-	Corner.Parent = SubTab
-	
-	-- Add shadow corner
-	local ShadowCorner = Instance.new("UICorner")
-	ShadowCorner.CornerRadius = UDim.new(0, 4)
-	ShadowCorner.Parent = Shadow
-	
-	-- Add indicator corner
-	local IndicatorCorner = Instance.new("UICorner")
-	IndicatorCorner.CornerRadius = UDim.new(0, 2)
-	IndicatorCorner.Parent = ActiveIndicator
-	
-	-- Add subtle border effect
-	local Border = Instance.new("UIStroke")
-	Border.Color = Theme.Line
-	Border.Thickness = 1
-	Border.Transparency = 1 -- Start fully transparent
-	Border.Parent = SubTab
-	
-	-- Add padding for better text positioning
-	local Padding = Instance.new("UIPadding")
-	Padding.PaddingLeft = UDim.new(0, 12)
-	Padding.PaddingRight = UDim.new(0, 12)
-	Padding.PaddingTop = UDim.new(0, 6)
-	Padding.PaddingBottom = UDim.new(0, 6)
-	Padding.Parent = SubTab
+	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
+		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
 
-	-- Enhanced animation functions with smooth transitions
-	local function tweenSubTabAssets(subTab, textColor, textTransparency: number, backgroundColor, borderColor, borderTransparency, scaleEffect)
-		local originalSize = subTab.Size
-		local targetScale = scaleEffect and 1.03 or 1
-		local targetZIndex = scaleEffect and 5 or 1
-		
-		-- Stop any existing tweens first to prevent conflicts
-		for _, tween in pairs(subTab:GetChildren()) do
-			if tween:IsA("Tween") then
-				tween:Cancel()
-			end
+		if not disableUnderlineTween then
+			Utility:tween(underline, {BackgroundColor3 = Theme.PrimaryColor, Position = UDim2.new(0, subTabPosition, 1, 0), Size = UDim2.new(0, subTab.Size.X.Offset, 0, 2)}, 0.2):Play()
 		end
-		
-		-- Set ZIndex for layering
-		subTab.ZIndex = targetZIndex
-		
-		-- Create smooth color and size transitions
-		local colorTween = Utility:tween(subTab, {
-			TextColor3 = textColor, 
-			TextTransparency = textTransparency,
-			BackgroundColor3 = backgroundColor,
-		}, 0.2, "Quart", "Out")
-		
-		local sizeTween = Utility:tween(subTab, {
-			Size = UDim2.new(0, originalSize.X.Offset * targetScale, 0, 28)
-		}, 0.2, "Back", "Out")
-		
-		local borderTween = Utility:tween(Border, {
-			Color = borderColor,
-			Transparency = borderTransparency
-		}, 0.2, "Quart", "Out")
-		
-		-- Animate active indicator and shadow
-		local indicator = subTab:FindFirstChild("ActiveIndicator")
-		local shadow = ScrollingFrame:FindFirstChild("Shadow_" .. options.text)
-		
-		if indicator then
-			local indicatorTween = Utility:tween(indicator, {
-				BackgroundTransparency = scaleEffect and 0 or 1
-			}, 0.2, "Quart", "Out")
-			indicatorTween:Play()
-		end
-		
-		if shadow then
-			local shadowTween = Utility:tween(shadow, {
-				BackgroundTransparency = scaleEffect and 0.7 or 0.85
-			}, 0.2, "Quart", "Out")
-			shadowTween:Play()
-		end
-		
-		colorTween:Play()
-		sizeTween:Play()
-		borderTween:Play()
 	end
 
 	local function autoCanvasSizeSubPageScrollingFrame()
@@ -564,11 +467,10 @@ function Library:createSubTab(options: table)
 	end
 
 	local function updateSectionAnimation()
-		-- Enhanced animation with smooth bounce effect
-		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 12)}, 0.2, "Back", "Out"):Play()
+		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 10)}, 0.2):Play()
 
 		task.delay(0.2, function()
-			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.3, "Back", "Out"):Play()
+			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.2):Play()
 		end)
 	end
 
@@ -580,55 +482,19 @@ function Library:createSubTab(options: table)
 		animation = {Value = updateSectionAnimation, ExpectedType = "function"},
 
 		tweenTabOn = {Value = function()
-			tweenSubTabAssets(
-				SubTab, 
-				Theme.TertiaryBackgroundColor, -- Light text for active state
-				0, 
-				Theme.PrimaryColor, -- Primary color background
-				Theme.PrimaryColor, -- Matching border
-				0.3,
-				true -- Scale effect enabled
-			)
+			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0, false)
 		end, ExpectedType = "function"},
 
 		tweenTabsOff = {Value = function(subTab)
-			tweenSubTabAssets(
-				subTab, 
-				Theme.SecondaryTextColor, -- Normal text color
-				0, 
-				Theme.SecondaryBackgroundColor, -- Normal background
-				Theme.Line, -- Subtle border
-				1, -- Fully transparent border
-				false -- No scale effect
-			)
+			tweenSubTabAssets(subTab, Underline, Theme.SecondaryTextColor, 0, true)
 		end, ExpectedType = "function"},
 
 		hoverOn = {Value = function()
-			tweenSubTabAssets(
-				SubTab, 
-				Theme.PrimaryColor, -- Primary color text on hover
-				0, 
-				Color3.fromRGB(
-					math.min(255, Theme.SecondaryBackgroundColor.R * 255 + 15),
-					math.min(255, Theme.SecondaryBackgroundColor.G * 255 + 15),
-					math.min(255, Theme.SecondaryBackgroundColor.B * 255 + 15)
-				), -- Slightly lighter background
-				Theme.PrimaryColor, -- Primary color border
-				0.5,
-				false -- No scale on hover
-			)
+			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0.3, true)
 		end, ExpectedType = "function"},
 
 		hoverOff = {Value = function()
-			tweenSubTabAssets(
-				SubTab, 
-				Theme.SecondaryTextColor, 
-				0, 
-				Theme.SecondaryBackgroundColor,
-				Theme.Line,
-				1, -- Return to fully transparent border
-				false
-			)
+			tweenSubTabAssets(SubTab, Underline, Theme.SecondaryTextColor, 0, true)
 		end, ExpectedType = "function"},
 	})
 
@@ -643,62 +509,143 @@ function Library:createSubTab(options: table)
 	Right.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
 
 	SubTab.MouseButton1Down:Connect(Navigation:selectTab())
+	SubTab.MouseEnter:Connect(Navigation:hoverEffect(true))
+	SubTab.MouseLeave:Connect(Navigation:hoverEffect(false))
 	
-	-- Fixed hover handling to prevent conflicts
-	local isHovering = false
-	local isActive = false
-	
-	SubTab.MouseEnter:Connect(function()
-		isHovering = true
-		if not isActive then
-			Navigation:hoverEffect(true)()
-		end
-	end)
-	
-	SubTab.MouseLeave:Connect(function()
-		isHovering = false
-		task.wait(0.05) -- Small delay to ensure proper state handling
-		if not isActive and not isHovering then
-			Navigation:hoverEffect(false)()
-		end
-	end)
-	
-	-- Update active state tracking when tab is selected
-	local originalSelectTab = Navigation.selectTab
-	Navigation.selectTab = function()
-		return function()
-			-- Set all other tabs as inactive
-			for _, otherTab in ipairs(ScrollingFrame:GetChildren()) do
-				if otherTab.Name == "SubTab" and otherTab ~= SubTab then
-					-- Reset other tabs to inactive state
-					tweenSubTabAssets(
-						otherTab, 
-						Theme.SecondaryTextColor,
-						0, 
-						Theme.SecondaryBackgroundColor,
-						Theme.Line,
-						1,
-						false
-					)
-				end
-			end
-			
-			isActive = true
-			originalSelectTab()()
-		end
-	end
-	
-	-- Enhanced theme registration
 	Theme:registerToObjects({
-		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "TertiaryBackgroundColor"}},
-		{object = SubTab, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor", "PrimaryColor"}},
-		{object = Border, property = "Color", theme = {"Line", "PrimaryColor"}},
-		{object = ActiveIndicator, property = "BackgroundColor3", theme = {"PrimaryColor"}},
+		{object = Underline, property = "BackgroundColor3", theme = {"PrimaryColor"}},
+		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
 		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
 	}, "SubTab")
 
 	local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = options.sectionStyle}, Library)
 	return PassingContext
+end
+
+function Library:createSection(options: table)
+	Utility:validateOptions(options, {
+		text = {Default = "Section", ExpectedType = "string"},
+		position = {Default = "Left", ExpectedType = "string"},
+	})
+		
+	local Section = Assets.Pages.Section:Clone()
+	Section.Visible = true
+	Section.Parent = self[options.position]
+
+	-- Change section style 
+	local screenSize = workspace.CurrentCamera.ViewportSize
+	if self.sectionStyle == "Single" or (screenSize.X <= 740 and screenSize.Y <= 590) or self.sizeX <= 660 then
+		if (options.position == "Right") then
+			table.insert(self.SectionFolder.Right, {folders = {Left = self.Left, Right = self.Right}, object = Section})
+		end
+		
+		self.Right.Visible = false
+		self.Left.Size = UDim2.fromScale(1, 1)
+		Section.Parent = self.Left
+	end
+
+	-- Store objects to change section style depending on the size of the UI
+	if (options.position == "Right" and self.sectionStyle ~= "Single") then
+		table.insert(self.SectionFolder.Right, {folders = {Left = self.Left, Right = self.Right}, object = Section})
+	end
+
+	if (options.position == "Left" and self.sectionStyle ~= "Single") then
+		table.insert(self.SectionFolder.Left, {folders = {Left = self.Left, Right = self.Right}, object = Section})
+	end
+	
+	local Inner = Section.Inner
+
+	local TextLabel = Inner.TextLabel
+	TextLabel.Text = options.text
+
+	-- Auto size section
+	Section.Inner.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+		Section.Size = UDim2.new(1, 0, 0, Section.Inner.UIListLayout.AbsoluteContentSize.Y + 28)
+	end)
+	
+	Theme:registerToObjects({
+		{object = Section, property = "BackgroundColor3", theme = {"Line"}},
+		{object = Inner, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
+		{object = TextLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
+	})
+
+	local PassingContext = setmetatable({Section = Inner, ScrollingFrame = Section.Parent.Parent}, Library)
+	return PassingContext
+end
+
+function Library:createToggle(options: table, parent, scrollingFrame)
+	Utility:validateOptions(options, {
+		text = {Default = "Toggle", ExpectedType = "string"},
+		state = {Default = false, ExpectedType = "boolean"},
+		callback = {Default = function() end, ExpectedType = "function"}
+	})
+
+	scrollingFrame = self.ScrollingFrame or scrollingFrame
+
+	local Toggle = Assets.Elements.Toggle:Clone()
+	Toggle.Visible = true
+	Toggle.Parent = parent or self.Section
+
+	local TextLabel = Toggle.TextLabel
+	TextLabel.Text = options.text
+	
+	local ImageButton = TextLabel.ImageButton
+	local TextButton = TextLabel.TextButton
+	local Background = TextButton.Background
+	local Circle = Background.Circle
+
+	local function tweenToggleAssets(backgroundColor: Color3, circleColor: Color3, anchorPoint: Vector2, position: UDim2)
+		Utility:tween(Background, {BackgroundColor3 = backgroundColor}, 0.2):Play()
+		Utility:tween(Circle, {BackgroundColor3 = circleColor, AnchorPoint = anchorPoint, Position = position}, 0.2):Play()
+	end
+	
+	local circleOn = false
+
+	local Context = Utility:validateContext({
+		state = {Value = options.state, ExpectedType = "boolean"},
+		callback = {Value = options.callback, ExpectedType = "function"},
+
+		switchOff = {Value = function()
+			tweenToggleAssets(Theme.SecondaryBackgroundColor, Theme.PrimaryBackgroundColor, Vector2.new(0, 0.5), UDim2.fromScale(0, 0.5), 0.2)
+			circleOn = false
+		end, ExpectedType = "function"},
+
+		switchOn = {Value = function()
+			tweenToggleAssets(Theme.PrimaryColor, Theme.TertiaryBackgroundColor, Vector2.new(1, 0.5), UDim2.fromScale(1, 0.5), 0.2)
+			circleOn = true
+		end, ExpectedType = "function"}
+	})
+
+	local Toggle = Modules.Toggle.new(Context)
+	Toggle:updateState({state = options.state})
+	TextButton.MouseButton1Down:Connect(Toggle:switch())
+	
+	Theme:registerToObjects({
+		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
+		{object = Background, property = "BackgroundColor3", theme = {"PrimaryColor", "SecondaryBackgroundColor"}},
+		{object = Circle, property = "BackgroundColor3", theme = {"TertiaryBackgroundColor", "PrimaryBackgroundColor"}, circleOn = circleOn},
+		{object = ImageButton, property = "ImageColor3", theme = {"SecondaryTextColor"}},
+	})
+
+	shared.Flags.Toggle[options.text] = {
+		getState = function(self)
+			return Context.state
+		end,
+
+		updateState = function(self, options: table)
+			Toggle:updateState(options)
+		end,
+	}
+
+	return self:createAddons(options.text, ImageButton, scrollingFrame, {
+		getState = function(self)
+			return Context.state
+		end,
+
+		updateState = function(self, options: table)
+			Toggle:updateState(options)
+		end,
+	})
 end
 
 function Library:createSlider(options: table, parent, scrollingFrame)
