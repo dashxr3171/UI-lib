@@ -35,7 +35,7 @@ local Library = {
 		ColorPicker = {},
 	},
 	Theme = {},
-	DropdownSizes = {},
+	DropdownSizes = {}, -- to store previous opened dropdown size to resize scrollingFrame canvassize
 }
 Library.__index = Library
 
@@ -60,120 +60,24 @@ local Utility = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/
 local Theme = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Averiias/Leny-UI/refs/heads/main/Modules/Theme.lua", true))()
 Library.Theme = Theme
 
--- Enhanced theme colors for better visual appeal
-Library.Theme.PrimaryBackgroundColor = Color3.fromRGB(18, 20, 24)
-Library.Theme.SecondaryBackgroundColor = Color3.fromRGB(24, 27, 32)
-Library.Theme.TertiaryBackgroundColor = Color3.fromRGB(32, 36, 42)
-Library.Theme.TabBackgroundColor = Color3.fromRGB(15, 17, 21)
-Library.Theme.PrimaryTextColor = Color3.fromRGB(220, 225, 235)
-Library.Theme.SecondaryTextColor = Color3.fromRGB(160, 170, 185)
-Library.Theme.PrimaryColor = Color3.fromRGB(88, 166, 255)
-Library.Theme.AccentColor = Color3.fromRGB(138, 43, 226)
-Library.Theme.Line = Color3.fromRGB(42, 47, 56)
-Library.Theme.ScrollingBarImageColor = Color3.fromRGB(88, 166, 255)
-Library.Theme.HoverColor = Color3.fromRGB(35, 39, 46)
-Library.Theme.ShadowColor = Color3.fromRGB(8, 10, 14)
-
 local Popups = ScreenGui.Popups
 
--- Enhanced UI styling with gradients and shadows
+-- Set default size for UI
 local Glow = ScreenGui.Glow
 Glow.Size = UDim2.fromOffset(Library.sizeX, Library.sizeY)
 
--- Add corner radius to main window
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 12)
-MainCorner.Parent = Glow
-
--- Add gradient background to main window
-local GradientFrame = Instance.new("Frame")
-GradientFrame.Name = "GradientBackground"
-GradientFrame.Size = UDim2.fromScale(1, 1)
-GradientFrame.Position = UDim2.fromScale(0, 0)
-GradientFrame.BackgroundColor3 = Library.Theme.PrimaryBackgroundColor
-GradientFrame.BorderSizePixel = 0
-GradientFrame.ZIndex = -1
-GradientFrame.Parent = Glow
-
-local Gradient = Instance.new("UIGradient")
-Gradient.Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 22, 28)),
-	ColorSequenceKeypoint.new(0.5, Color3.fromRGB(15, 17, 22)),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 12, 16))
-}
-Gradient.Rotation = 135
-Gradient.Parent = GradientFrame
-
-local GradientCorner = Instance.new("UICorner")
-GradientCorner.CornerRadius = UDim.new(0, 12)
-GradientCorner.Parent = GradientFrame
-
--- Add drop shadow effect
-local Shadow = Instance.new("ImageLabel")
-Shadow.Name = "DropShadow"
-Shadow.Size = UDim2.fromScale(1.02, 1.02)
-Shadow.Position = UDim2.fromOffset(2, 2)
-Shadow.BackgroundTransparency = 1
-Shadow.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-Shadow.ImageColor3 = Library.Theme.ShadowColor
-Shadow.ImageTransparency = 0.8
-Shadow.ZIndex = -3
-Shadow.Parent = Glow.Parent
-
-local ShadowCorner = Instance.new("UICorner")
-ShadowCorner.CornerRadius = UDim.new(0, 12)
-ShadowCorner.Parent = Shadow
-
 local Background = Glow.Background
 
--- Enhanced tab styling
 local Tabs = Background.Tabs
 local Filler = Tabs.Filler
 local Resize = Filler.Resize
 local Line = Filler.Line
 local Title = Tabs.Frame.Title
 
--- Add gradient to tab area
-local TabGradient = Instance.new("UIGradient")
-TabGradient.Color = ColorSequence.new{
-	ColorSequenceKeypoint.new(0, Library.Theme.TabBackgroundColor),
-	ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 23, 28))
-}
-TabGradient.Rotation = 90
-TabGradient.Parent = Tabs
-
--- Enhanced title styling
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
-Title.TextColor3 = Library.Theme.PrimaryTextColor
-
--- Add glow effect to title
-local TitleGlow = Instance.new("TextLabel")
-TitleGlow.Name = "TitleGlow"
-TitleGlow.Size = UDim2.fromScale(1, 1)
-TitleGlow.Position = UDim2.fromScale(0, 0)
-TitleGlow.BackgroundTransparency = 1
-TitleGlow.Text = Title.Text
-TitleGlow.Font = Title.Font
-TitleGlow.TextSize = Title.TextSize
-TitleGlow.TextColor3 = Library.Theme.PrimaryColor
-TitleGlow.TextTransparency = 0.8
-TitleGlow.ZIndex = Title.ZIndex - 1
-TitleGlow.Parent = Title.Parent
-
--- Enhanced resize handle
-Resize.BackgroundColor3 = Library.Theme.AccentColor
-Resize.BackgroundTransparency = 0.3
-
-local ResizeCorner = Instance.new("UICorner")
-ResizeCorner.CornerRadius = UDim.new(0, 2)
-ResizeCorner.Parent = Resize
-
 -- Tab resizing stuff
 local tabResizing = false
 Resize.MouseButton1Down:Connect(function()
 	tabResizing = true
-	Utility:tween(Resize, {BackgroundTransparency = 0}, 0.2):Play()
 end)
 
 local touchMoved = UserInputService.TouchMoved:Connect(function()
@@ -195,7 +99,6 @@ end)
 local touchEnded = UserInputService.TouchEnded:Connect(function(input)
 	if tabResizing then
 		tabResizing = false
-		Utility:tween(Resize, {BackgroundTransparency = 0.3}, 0.2):Play()
 	end
 end)
 
@@ -204,7 +107,6 @@ table.insert(Connections, inputChanged)
 Resize.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		tabResizing = false
-		Utility:tween(Resize, {BackgroundTransparency = 0.3}, 0.2):Play()
 	end
 end)
 
@@ -247,7 +149,6 @@ function Library.new(options)
 
 	ScreenGui.Enabled = true
 	Title.Text = options.title
-	TitleGlow.Text = options.title
 	Glow.Size = UDim2.fromOffset(options.sizeX, options.sizeY)
 end
 
@@ -256,19 +157,10 @@ function Library:createAddons(text, imageButton, scrollingFrame, additionalAddon
 	Addon.Size = UDim2.fromOffset(scrollingFrame.AbsoluteSize.X * 0.5, Addon.Inner.UIListLayout.AbsoluteContentSize.Y)
 	Addon.Parent = Popups
 	
-	-- Enhanced addon styling
-	local AddonCorner = Instance.new("UICorner")
-	AddonCorner.CornerRadius = UDim.new(0, 8)
-	AddonCorner.Parent = Addon
-	
 	local Inner = Addon.Inner
-	local InnerCorner = Instance.new("UICorner")
-	InnerCorner.CornerRadius = UDim.new(0, 6)
-	InnerCorner.Parent = Inner
 	
 	local TextLabel = Inner.TextLabel
 	TextLabel.Text = text .. " Addons"
-	TextLabel.Font = Enum.Font.GothamMedium
 
 	local PopupContext = Utility:validateContext({
 		Popup = {Value = Addon, ExpectedType = "Instance"},
@@ -302,7 +194,7 @@ function Library:createAddons(text, imageButton, scrollingFrame, additionalAddon
 		end,
 
 		createDropdown = function(self, options)
-			options.default = {}
+			options.default = {} -- need to do this for some reason since I clearly implied that default was as table value but guess not?
 			Library:createDropdown(options, Addon.Inner, scrollingFrame)
 		end,
 
@@ -321,10 +213,12 @@ function Library:createAddons(text, imageButton, scrollingFrame, additionalAddon
 
 			if type(originalFunction) == "function" then
 				return function(...)
+					-- Show imageButton if the index name is "create"
 					if string.match(key, "create") then
 						imageButton.Visible = true
 					end
 
+					-- updateTransparentObjects again to account for the new creation of element after the call.
 					return originalFunction(...), Popup:updateTransparentObjects(Addon)
 				end
 			else
@@ -363,7 +257,6 @@ function Library:createLabel(options: table)
 	local TextLabel = Assets.Tabs.TextLabel:Clone()
 	TextLabel.Visible = true
 	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamMedium
 	TextLabel.Parent = ScrollingFrame
 
 	for _, line in ipairs(ScrollingFrame:GetChildren()) do
@@ -390,7 +283,7 @@ function Library:createTab(options: table)
 		icon = {Default = "124718082122263", ExpectedType = "string"},
 	})
 
-	-- Change tab size depending on Library.tabSizeX
+	-- Change tab size depending on Library.tabSizeX, maybe make resizer for tabs later
 	Background.Tabs.Size = UDim2.new(0, Library.tabSizeX, 1, 0)
 	Background.Pages.Size = UDim2.new(1, -Library.tabSizeX, 1, 0)
 
@@ -400,11 +293,6 @@ function Library:createTab(options: table)
 	Tab.Visible = true
 	Tab.Parent = ScrollingFrame
 
-	-- Enhanced tab styling
-	local TabCorner = Instance.new("UICorner")
-	TabCorner.CornerRadius = UDim.new(0, 6)
-	TabCorner.Parent = Tab
-
 	local ImageButton = Tab.ImageButton
 
 	local Icon = ImageButton.Icon
@@ -412,7 +300,6 @@ function Library:createTab(options: table)
 
 	local TextButton = ImageButton.TextButton
 	TextButton.Text = options.text
-	TextButton.Font = Enum.Font.GothamMedium
 
 	local Page = Assets.Pages.Page:Clone()
 	Page.Parent = Background.Pages
@@ -423,43 +310,28 @@ function Library:createTab(options: table)
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Theme.PrimaryTextColor
-	CurrentTabLabel.Font = Enum.Font.GothamBold
-	CurrentTabLabel.TextSize = 18
 
 	local SubTabs = Page.SubTabs
 	local SubLine = SubTabs.Line
 
-	-- Add enhanced visual elements to tab
-	local TabGradient = Instance.new("UIGradient")
-	TabGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Library.Theme.TabBackgroundColor),
-		ColorSequenceKeypoint.new(1, Library.Theme.HoverColor)
-	}
-	TabGradient.Rotation = 45
-	TabGradient.Transparency = NumberSequence.new{
-		NumberSequenceKeypoint.new(0, 0.8),
-		NumberSequenceKeypoint.new(1, 1)
-	}
-	TabGradient.Parent = Tab
-
 	local function tweenTabAssets(tab: Instance, icon: Instance, textButton: Instance, color: textColor3, backgroundColor3: Color3, backgroundTransparency: number, textTransparency: number, imageTransparency: number)
-		Utility:tween(tab, {BackgroundColor3 = backgroundColor3, BackgroundTransparency = backgroundTransparency}, 0.3):Play()
-		Utility:tween(icon, {ImageTransparency = imageTransparency, ImageColor3 = color}, 0.3):Play()
-		Utility:tween(textButton, {TextColor3 = color, TextTransparency = textTransparency}, 0.3):Play()
+		Utility:tween(tab, {BackgroundColor3 = backgroundColor3, BackgroundTransparency = backgroundTransparency}, 0.5):Play()
+		Utility:tween(icon, {ImageTransparency = imageTransparency, ImageColor3 = color}, 0.5):Play()
+		Utility:tween(textButton, {TextColor3 = color, TextTransparency = textTransparency}, 0.5):Play()
 	end	
 
 	local function fadeAnimation()
 		local function tweenFadeAndPage(fade: Instance, backgroundTransparency: number, textTransparency: number, paddingY: number)
-			Utility:tween(fade, {BackgroundTransparency = backgroundTransparency}, 0.3):Play()
-			Utility:tween(CurrentTabLabel.UIPadding, {PaddingBottom = UDim.new(0, paddingY)}, 0.3):Play()
+			Utility:tween(fade, {BackgroundTransparency = backgroundTransparency}, 0.2):Play()
+			Utility:tween(CurrentTabLabel.UIPadding, {PaddingBottom = UDim.new(0, paddingY)}, 0.2):Play()
 		end
 
 		for _, subPage in ipairs(Page:GetChildren()) do
 			if subPage.Name == "SubPage" and subPage.Visible and subPage:FindFirstChild("ScrollingFrame") then
-				Utility:tween(subPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 15)}, 0.3):Play()
+				Utility:tween(subPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 10)}, 0.2):Play()
 
-				task.delay(0.3, function()
-					Utility:tween(subPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 8)}, 0.3):Play()
+				task.delay(0.2, function()
+					Utility:tween(subPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.2):Play()
 				end)
 			end
 		end
@@ -469,11 +341,11 @@ function Library:createTab(options: table)
 		Fade.Visible = true
 		Fade.Parent = Background.Pages
 
-		tweenFadeAndPage(Fade, 0, 1, 18)
+		tweenFadeAndPage(Fade, 0, 1, 14)
 
-		task.delay(0.3, function()
+		task.delay(0.2, function()
 			tweenFadeAndPage(Fade, 1, 0, 0)
-			task.wait(0.3)
+			task.wait(0.2)
 			Fade:Destroy()
 		end)
 	end
@@ -486,7 +358,7 @@ function Library:createTab(options: table)
 		animation = {Value = fadeAnimation, ExpectedType = "function"},
 
 		tweenTabOn = {Value = function()
-			tweenTabAssets(Tab, Icon, TextButton, Theme.PrimaryColor, Theme.HoverColor, 0, 0, 0)
+			tweenTabAssets(Tab, Icon, TextButton, Theme.PrimaryColor, Theme.TabBackgroundColor, 0, 0, 0)
 		end, ExpectedType = "function"},
 
 		tweenTabsOff = {Value = function(tab)
@@ -494,7 +366,7 @@ function Library:createTab(options: table)
 		end, ExpectedType = "function"},
 
 		hoverOn = {Value = function()
-			tweenTabAssets(Tab, Icon, TextButton, Theme.PrimaryColor, Theme.HoverColor, 0.5, 0.2, 0.2)
+			tweenTabAssets(Tab, Icon, TextButton, Theme.PrimaryColor, Theme.TabBackgroundColor, 0.16, 0.3, 0.3)
 		end, ExpectedType = "function"},
 
 		hoverOff = {Value = function()
@@ -504,6 +376,7 @@ function Library:createTab(options: table)
 
 	local Navigation = Modules.Navigation.new(Context)
 
+	-- this is stupid but anyways!!!
 	if not self.firstTabDebounce then
 		Navigation:enableFirstTab()
 		self.firstTabDebounce = true
@@ -535,10 +408,10 @@ function Library:createTab(options: table)
 end
 
 function Library:createSubTab(options: table)
+	-- Use provided options, or fall back to defaults if not provided	
 	Utility:validateOptions(options, {
 		sectionStyle = {Default = "Double", ExpectedType = "string"},
 		text = {Default = "SubTab", ExpectedType = "string"},
-		icon = {Default = nil, ExpectedType = "string"},
 	})
 
 	local Moveable = self.Page.SubTabs.Frame.Moveable
@@ -547,53 +420,16 @@ function Library:createSubTab(options: table)
 	local SubPage = Assets.Pages.SubPage:Clone()
 	SubPage.Parent = self.Page
 
-	-- Enhanced scrolling frame styling
-	local ScrollCorner = Instance.new("UICorner")
-	ScrollCorner.CornerRadius = UDim.new(0, 8)
-	ScrollCorner.Parent = SubPage.ScrollingFrame
-
 	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
 
 	local SubTab = Assets.Pages.SubTab:Clone()
 	SubTab.Visible = true
 	SubTab.Text = options.text
 	SubTab.TextColor3 = Theme.SecondaryTextColor
-	SubTab.Font = Enum.Font.GothamMedium
-	SubTab.TextSize = 14
 	SubTab.Parent = ScrollingFrame
 
-	-- Enhanced underline styling
-	Underline.BackgroundColor3 = Library.Theme.PrimaryColor
-	Underline.Size = UDim2.new(0, 0, 0, 3)
-	
-	local UnderlineCorner = Instance.new("UICorner")
-	UnderlineCorner.CornerRadius = UDim.new(0, 2)
-	UnderlineCorner.Parent = Underline
-
-	-- Add gradient to underline
-	local UnderlineGradient = Instance.new("UIGradient")
-	UnderlineGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Library.Theme.PrimaryColor),
-		ColorSequenceKeypoint.new(1, Library.Theme.AccentColor)
-	}
-	UnderlineGradient.Parent = Underline
-
-	-- Add icon to subtab if specified
-	if options.icon then
-		local Icon = Instance.new("ImageLabel")
-		Icon.Name = "SubTabIcon"
-		Icon.Size = UDim2.fromOffset(16, 16)
-		Icon.Position = UDim2.new(0, 4, 0.5, -8)
-		Icon.BackgroundTransparency = 1
-		Icon.Image = "rbxassetid://" .. options.icon
-		Icon.ImageColor3 = Library.Theme.SecondaryTextColor
-		Icon.Parent = SubTab
-		
-		SubTab.Text = "   " .. options.text
-	end
-
 	local TextService = game:GetService("TextService")
-	SubTab.Size = UDim2.new(0, TextService:GetTextSize(options.text, 14, Enum.Font.GothamMedium, SubTab.AbsoluteSize).X + (options.icon and 24 or 8), 1, 0)
+	SubTab.Size = UDim2.new(0, TextService:GetTextSize(options.text, 15, Enum.Font.MontserratMedium, SubTab.AbsoluteSize).X, 1, 0)
 
 	-- Calculate subTab position to position underline
 	local subTabIndex, subTabPosition = 0, 0
@@ -618,31 +454,23 @@ function Library:createSubTab(options: table)
 	end
 
 	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
-		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.3):Play()
-		
-		if subTab:FindFirstChild("SubTabIcon") then
-			Utility:tween(subTab.SubTabIcon, {ImageColor3 = textColor}, 0.3):Play()
-		end
+		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
 
 		if not disableUnderlineTween then
-			Utility:tween(underline, {
-				BackgroundColor3 = Theme.PrimaryColor, 
-				Position = UDim2.new(0, subTabPosition, 1, 0), 
-				Size = UDim2.new(0, subTab.Size.X.Offset, 0, 3)
-			}, 0.4):Play()
+			Utility:tween(underline, {BackgroundColor3 = Theme.PrimaryColor, Position = UDim2.new(0, subTabPosition, 1, 0), Size = UDim2.new(0, subTab.Size.X.Offset, 0, 2)}, 0.2):Play()
 		end
 	end
 
 	local function autoCanvasSizeSubPageScrollingFrame()
 		local max = math.max(Left.UIListLayout.AbsoluteContentSize.Y, Right.UIListLayout.AbsoluteContentSize.Y)
-		SubPage.ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, max + 20)
+		SubPage.ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, max)
 	end
 
 	local function updateSectionAnimation()
-		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 15)}, 0.3):Play()
+		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 10)}, 0.2):Play()
 
-		task.delay(0.3, function()
-			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 8)}, 0.3):Play()
+		task.delay(0.2, function()
+			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.2):Play()
 		end)
 	end
 
@@ -698,49 +526,11 @@ function Library:createSection(options: table)
 	Utility:validateOptions(options, {
 		text = {Default = "Section", ExpectedType = "string"},
 		position = {Default = "Left", ExpectedType = "string"},
-		style = {Default = "Default", ExpectedType = "string"},
-		icon = {Default = nil, ExpectedType = "string"},
 	})
 		
 	local Section = Assets.Pages.Section:Clone()
 	Section.Visible = true
 	Section.Parent = self[options.position]
-
-	-- Enhanced section styling
-	local SectionCorner = Instance.new("UICorner")
-	SectionCorner.CornerRadius = UDim.new(0, 8)
-	SectionCorner.Parent = Section
-
-	-- Add subtle gradient to sections
-	local SectionGradient = Instance.new("UIGradient")
-	if options.style == "Accent" then
-		SectionGradient.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Library.Theme.AccentColor),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(100, 30, 180))
-		}
-		SectionGradient.Transparency = NumberSequence.new{
-			NumberSequenceKeypoint.new(0, 0.9),
-			NumberSequenceKeypoint.new(1, 0.95)
-		}
-	else
-		SectionGradient.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Library.Theme.SecondaryBackgroundColor),
-			ColorSequenceKeypoint.new(1, Library.Theme.TertiaryBackgroundColor)
-		}
-		SectionGradient.Transparency = NumberSequence.new{
-			NumberSequenceKeypoint.new(0, 0.95),
-			NumberSequenceKeypoint.new(1, 0.98)
-		}
-	end
-	SectionGradient.Rotation = 45
-	SectionGradient.Parent = Section
-
-	-- Add subtle border
-	local Border = Instance.new("UIStroke")
-	Border.Color = Library.Theme.Line
-	Border.Thickness = 1
-	Border.Transparency = 0.5
-	Border.Parent = Section
 
 	-- Change section style 
 	local screenSize = workspace.CurrentCamera.ViewportSize
@@ -754,6 +544,7 @@ function Library:createSection(options: table)
 		Section.Parent = self.Left
 	end
 
+	-- Store objects to change section style depending on the size of the UI
 	if (options.position == "Right" and self.sectionStyle ~= "Single") then
 		table.insert(self.SectionFolder.Right, {folders = {Left = self.Left, Right = self.Right}, object = Section})
 	end
@@ -763,40 +554,19 @@ function Library:createSection(options: table)
 	end
 	
 	local Inner = Section.Inner
-	local InnerCorner = Instance.new("UICorner")
-	InnerCorner.CornerRadius = UDim.new(0, 6)
-	InnerCorner.Parent = Inner
 
 	local TextLabel = Inner.TextLabel
 	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamMedium
-	TextLabel.TextSize = 14
 
-	-- Add icon to section header if specified
-	if options.icon then
-		local Icon = Instance.new("ImageLabel")
-		Icon.Name = "SectionIcon"
-		Icon.Size = UDim2.fromOffset(16, 16)
-		Icon.Position = UDim2.new(0, 8, 0, 6)
-		Icon.BackgroundTransparency = 1
-		Icon.Image = "rbxassetid://" .. options.icon
-		Icon.ImageColor3 = Library.Theme.PrimaryColor
-		Icon.Parent = Inner
-		
-		TextLabel.Position = UDim2.new(0, 32, 0, 0)
-		TextLabel.Size = UDim2.new(1, -40, 0, 28)
-	end
-
-	-- Auto size section with padding
+	-- Auto size section
 	Section.Inner.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		Section.Size = UDim2.new(1, 0, 0, Section.Inner.UIListLayout.AbsoluteContentSize.Y + 32)
+		Section.Size = UDim2.new(1, 0, 0, Section.Inner.UIListLayout.AbsoluteContentSize.Y + 28)
 	end)
 	
 	Theme:registerToObjects({
 		{object = Section, property = "BackgroundColor3", theme = {"Line"}},
 		{object = Inner, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
 		{object = TextLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
-		{object = Border, property = "Color", theme = {"Line"}},
 	})
 
 	local PassingContext = setmetatable({Section = Inner, ScrollingFrame = Section.Parent.Parent}, Library)
@@ -816,32 +586,17 @@ function Library:createToggle(options: table, parent, scrollingFrame)
 	Toggle.Visible = true
 	Toggle.Parent = parent or self.Section
 
-	-- Enhanced toggle styling
-	local ToggleCorner = Instance.new("UICorner")
-	ToggleCorner.CornerRadius = UDim.new(0, 4)
-	ToggleCorner.Parent = Toggle
-
 	local TextLabel = Toggle.TextLabel
 	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamMedium
 	
 	local ImageButton = TextLabel.ImageButton
 	local TextButton = TextLabel.TextButton
 	local Background = TextButton.Background
 	local Circle = Background.Circle
 
-	-- Enhanced toggle switch styling
-	local BackgroundCorner = Instance.new("UICorner")
-	BackgroundCorner.CornerRadius = UDim.new(0, 10)
-	BackgroundCorner.Parent = Background
-
-	local CircleCorner = Instance.new("UICorner")
-	CircleCorner.CornerRadius = UDim.new(0, 8)
-	CircleCorner.Parent = Circle
-
 	local function tweenToggleAssets(backgroundColor: Color3, circleColor: Color3, anchorPoint: Vector2, position: UDim2)
-		Utility:tween(Background, {BackgroundColor3 = backgroundColor}, 0.3):Play()
-		Utility:tween(Circle, {BackgroundColor3 = circleColor, AnchorPoint = anchorPoint, Position = position}, 0.3):Play()
+		Utility:tween(Background, {BackgroundColor3 = backgroundColor}, 0.2):Play()
+		Utility:tween(Circle, {BackgroundColor3 = circleColor, AnchorPoint = anchorPoint, Position = position}, 0.2):Play()
 	end
 	
 	local circleOn = false
@@ -851,12 +606,12 @@ function Library:createToggle(options: table, parent, scrollingFrame)
 		callback = {Value = options.callback, ExpectedType = "function"},
 
 		switchOff = {Value = function()
-			tweenToggleAssets(Theme.SecondaryBackgroundColor, Theme.PrimaryBackgroundColor, Vector2.new(0, 0.5), UDim2.fromScale(0, 0.5), 0.3)
+			tweenToggleAssets(Theme.SecondaryBackgroundColor, Theme.PrimaryBackgroundColor, Vector2.new(0, 0.5), UDim2.fromScale(0, 0.5), 0.2)
 			circleOn = false
 		end, ExpectedType = "function"},
 
 		switchOn = {Value = function()
-			tweenToggleAssets(Theme.PrimaryColor, Theme.TertiaryBackgroundColor, Vector2.new(1, 0.5), UDim2.fromScale(1, 0.5), 0.3)
+			tweenToggleAssets(Theme.PrimaryColor, Theme.TertiaryBackgroundColor, Vector2.new(1, 0.5), UDim2.fromScale(1, 0.5), 0.2)
 			circleOn = true
 		end, ExpectedType = "function"}
 	})
@@ -910,11 +665,6 @@ function Library:createSlider(options: table, parent, scrollingFrame)
 	Slider.Visible = true
 	Slider.Parent = parent or self.Section
 	
-	-- Enhanced slider styling
-	local SliderCorner = Instance.new("UICorner")
-	SliderCorner.CornerRadius = UDim.new(0, 4)
-	SliderCorner.Parent = Slider
-	
 	local TextLabel = Slider.TextButton.TextLabel
 	local ImageButton = TextLabel.ImageButton
 	local TextBox = TextLabel.TextBox
@@ -925,37 +675,10 @@ function Library:createSlider(options: table, parent, scrollingFrame)
 	
 	local TextLabel = TextButton.TextLabel
 	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamMedium
 	
 	local Circle = Fill.Circle
 	local InnerCircle = Circle.InnerCircle
 	local CurrentValueLabel = Circle.TextButton.CurrentValueLabel
-
-	-- Enhanced slider line styling
-	local LineCorner = Instance.new("UICorner")
-	LineCorner.CornerRadius = UDim.new(0, 4)
-	LineCorner.Parent = Line
-
-	local FillCorner = Instance.new("UICorner")
-	FillCorner.CornerRadius = UDim.new(0, 4)
-	FillCorner.Parent = Fill
-
-	local CircleCorner = Instance.new("UICorner")
-	CircleCorner.CornerRadius = UDim.new(0, 6)
-	CircleCorner.Parent = Circle
-
-	local InnerCircleCorner = Instance.new("UICorner")
-	InnerCircleCorner.CornerRadius = UDim.new(0, 4)
-	InnerCircleCorner.Parent = InnerCircle
-
-	local ValueCorner = Instance.new("UICorner")
-	ValueCorner.CornerRadius = UDim.new(0, 4)
-	ValueCorner.Parent = CurrentValueLabel
-
-	-- Add textbox styling
-	local TextBoxCorner = Instance.new("UICorner")
-	TextBoxCorner.CornerRadius = UDim.new(0, 4)
-	TextBoxCorner.Parent = TextBox
 
 	local function tweenSliderInfoAssets(transparency: number)
 		local TextBoundsX = math.clamp(CurrentValueLabel.TextBounds.X + 14, 10, 200)
@@ -1050,32 +773,17 @@ function Library:createPicker(options: table, parent, scrollingFrame, isPickerBo
 	Picker.Visible = true
 	Picker.Parent = parent or self.Section
 
-	-- Enhanced picker styling
-	local PickerCorner = Instance.new("UICorner")
-	PickerCorner.CornerRadius = UDim.new(0, 4)
-	PickerCorner.Parent = Picker
-
 	local TextLabel = Picker.TextLabel
 	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamMedium
 
 	local ImageButton = TextLabel.ImageButton
 	local Background = TextLabel.Background
 	local TextButton = Background.TextButton
 
-	-- Enhanced color display
-	local BackgroundCorner = Instance.new("UICorner")
-	BackgroundCorner.CornerRadius = UDim.new(0, 4)
-	BackgroundCorner.Parent = Background
-
 	local ColorPicker = Assets.Elements.ColorPicker:Clone()
 	ColorPicker.Parent = Popups
 
-	-- Enhanced color picker styling
-	local ColorPickerCorner = Instance.new("UICorner")
-	ColorPickerCorner.CornerRadius = UDim.new(0, 8)
-	ColorPickerCorner.Parent = ColorPicker
-
+	-- Put transparent objects to not be visible to make cool effect later!!
 	local ColorPickerTransparentObjects = Utility:getTransparentObjects(ColorPicker)
 
 	for _, data in ipairs(ColorPickerTransparentObjects) do
@@ -1083,28 +791,11 @@ function Library:createPicker(options: table, parent, scrollingFrame, isPickerBo
 	end
 
 	local Inner = ColorPicker.Inner
-	local InnerCorner = Instance.new("UICorner")
-	InnerCorner.CornerRadius = UDim.new(0, 6)
-	InnerCorner.Parent = Inner
-
 	local HSV = Inner.HSV
 	local Slider = Inner.Slider
 	local Submit = Inner.Submit
 	local Hex = Inner.HexAndRGB.Hex
 	local RGB = Inner.HexAndRGB.RGB
-
-	-- Enhanced color picker elements
-	local SubmitCorner = Instance.new("UICorner")
-	SubmitCorner.CornerRadius = UDim.new(0, 4)
-	SubmitCorner.Parent = Submit
-
-	local HexCorner = Instance.new("UICorner")
-	HexCorner.CornerRadius = UDim.new(0, 4)
-	HexCorner.Parent = Hex
-
-	local RGBCorner = Instance.new("UICorner")
-	RGBCorner.CornerRadius = UDim.new(0, 4)
-	RGBCorner.Parent = RGB
 
 	local PopupContext = Utility:validateContext({
 		Popup = {Value = ColorPicker, ExpectedType = "Instance"},
@@ -1186,26 +877,14 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 	Dropdown.Visible = true
 	Dropdown.Parent = parent or self.Section
 	
-	-- Enhanced dropdown styling
-	local DropdownCorner = Instance.new("UICorner")
-	DropdownCorner.CornerRadius = UDim.new(0, 4)
-	DropdownCorner.Parent = Dropdown
-	
 	local TextLabel = Dropdown.TextLabel
 	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamMedium
 	
 	local ImageButton = TextLabel.ImageButton
 	local Box = Dropdown.Box
 	
-	-- Enhanced box styling
-	local BoxCorner = Instance.new("UICorner")
-	BoxCorner.CornerRadius = UDim.new(0, 4)
-	BoxCorner.Parent = Box
-	
 	local TextButton = Box.TextButton
 	TextButton.Text = table.concat(options.default, ", ")
-	TextButton.Font = Enum.Font.Gotham
 
 	if options.default[1] == nil then
 		TextButton.Text = "None"
@@ -1216,27 +895,65 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 	local DropButtons = Inner.ScrollingFrame
 	local Search = Inner.TextBox
 
-	-- Enhanced list styling
-	local ListCorner = Instance.new("UICorner")
-	ListCorner.CornerRadius = UDim.new(0, 6)
-	ListCorner.Parent = List
-
-	local InnerCorner = Instance.new("UICorner")
-	InnerCorner.CornerRadius = UDim.new(0, 4)
-	InnerCorner.Parent = Inner
-
-	local SearchCorner = Instance.new("UICorner")
-	SearchCorner.CornerRadius = UDim.new(0, 4)
-	SearchCorner.Parent = Search
-
 	-- Auto size ScrollingFrame and List
 	DropButtons.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		DropButtons.CanvasSize = UDim2.new(0, 0, 0, DropButtons.UIListLayout.AbsoluteContentSize.Y + Inner.UIListLayout.Padding.Offset)
 		DropButtons.Size = UDim2.new(1, 0, 0, math.clamp(DropButtons.UIListLayout.AbsoluteContentSize.Y + Inner.UIListLayout.Padding.Offset, 0, 164))
 
 		if List.Size.Y.Offset > 0 then
-			Utility:tween(List, {Size = UDim2.new(1, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))}, 0.3):Play()
+			Utility:tween(List, {Size = UDim2.new(1, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))}, 0.2):Play()
 			
+			for index, value in ipairs(self.DropdownSizes) do
+				scrollingFrame.CanvasSize = scrollingFrame.CanvasSize - value.size
+				scrollingFrame.CanvasSize = scrollingFrame.CanvasSize + UDim2.new(0, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))
+				table.remove(Library.DropdownSizes, index)
+				table.insert(Library.DropdownSizes, {object = Dropdown, size = UDim2.new(0, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))})
+			end
+		end
+	end)
+
+	-- As long we don't spam it were good i guess when changing canvassize when tweened but let's not do that
+	local function toggleList()
+		if List.Size.Y.Offset <= 0 then
+			for index, value in ipairs(Library.DropdownSizes) do
+				if value.object ~= Dropdown then
+					scrollingFrame.CanvasSize = scrollingFrame.CanvasSize - value.size
+					table.remove(Library.DropdownSizes, index)
+				end
+			end
+
+			-- Hide current open dropdowns and make sure enabled dropdown is on top
+			for _, object in ipairs(scrollingFrame:GetDescendants()) do
+				if object.Name == "Section" then
+					object.ZIndex = 1
+				end
+
+				if object.Name == "List" and object ~= List then
+					object.Parent.ZIndex = 1
+					Utility:tween(object, {Size = UDim2.new(1, 0, 0, 0)}, 0.2):Play()
+				end
+			end
+
+			for _, object in ipairs(Popups:GetDescendants()) do
+				if object.Name == "List" and object ~= List then
+					object.Parent.ZIndex = 1
+					Utility:tween(object, {Size = UDim2.new(1, 0, 0, 0)}, 0.2):Play()
+				end
+			end
+
+			Dropdown.ZIndex = 2
+			
+			if self.Section then
+				self.Section.Parent.ZIndex = 2
+			end
+			
+			Utility:tween(List, {Size = UDim2.new(1, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))}, 0.2):Play()
+			table.insert(Library.DropdownSizes, {object = Dropdown, size = UDim2.new(0, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))})
+
+			scrollingFrame.CanvasSize = scrollingFrame.CanvasSize + UDim2.new(0, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))
+		else
+			Utility:tween(List, {Size = UDim2.new(1, 0, 0, 0)}, 0.2):Play()
+
 			for index, value in ipairs(Library.DropdownSizes) do
 				if value.object == Dropdown then
 					scrollingFrame.CanvasSize = scrollingFrame.CanvasSize - value.size
@@ -1251,22 +968,12 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 		DropButton.Visible = true
 		DropButton.Parent = DropButtons
 
-		-- Enhanced drop button styling
-		local DropButtonCorner = Instance.new("UICorner")
-		DropButtonCorner.CornerRadius = UDim.new(0, 4)
-		DropButtonCorner.Parent = DropButton
-
 		local TextButton = DropButton.TextButton
 		local Background = TextButton.Background
 		local Checkmark = TextButton.Checkmark
 
-		local BackgroundCorner = Instance.new("UICorner")
-		BackgroundCorner.CornerRadius = UDim.new(0, 4)
-		BackgroundCorner.Parent = Background
-
 		local TextLabel = DropButton.TextLabel
 		TextLabel.Text = tostring(value)
-		TextLabel.Font = Enum.Font.Gotham
 		
 		Theme:registerToObjects({
 			{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
@@ -1278,7 +985,7 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 	end
 
 	local function tweenDropButton(dropButton: Instance, backgroundColor: Color3, imageTransparency: number)
-		Utility:tween(dropButton.Background, {BackgroundColor3 = backgroundColor}, 0.3, "Circular", "InOut"):Play()
+		Utility:tween(dropButton.Background, {BackgroundColor3 = backgroundColor}, 0.2, "Circular", "InOut"):Play()
 		Utility:tween(dropButton.Checkmark, {ImageTransparency = imageTransparency}, 0.3):Play()
 	end
 
@@ -1383,25 +1090,13 @@ function Library:createKeybind(options: table, parent, scrollingFrame)
 	Keybind.Visible = true
 	Keybind.Parent = parent or self.Section
 
-	-- Enhanced keybind styling
-	local KeybindCorner = Instance.new("UICorner")
-	KeybindCorner.CornerRadius = UDim.new(0, 4)
-	KeybindCorner.Parent = Keybind
-
 	local TextLabel = Keybind.TextLabel
 	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamMedium
 	
 	local ImageButton = TextLabel.ImageButton
 	local Background = TextLabel.Background
 	
-	-- Enhanced background styling
-	local BackgroundCorner = Instance.new("UICorner")
-	BackgroundCorner.CornerRadius = UDim.new(0, 4)
-	BackgroundCorner.Parent = Background
-	
 	local TextButton = Background.TextButton
-	TextButton.Font = Enum.Font.Gotham
 	
 	if not table.find(self.Exclusions, options.default) then
 		TextButton.Text = options.default
@@ -1461,6 +1156,7 @@ function Library:createKeybind(options: table, parent, scrollingFrame)
 	})
 end
 
+-- Rushed this, later put it into a module like the other elements, even though it's simple.
 function Library:createButton(options: table, parent, scrollingFrame)
 	Utility:validateOptions(options, {
 		text = {Default = "Button", ExpectedType = "string"},
@@ -1472,43 +1168,31 @@ function Library:createButton(options: table, parent, scrollingFrame)
 	local Button = Assets.Elements.Button:Clone()
 	Button.Visible = true
 	Button.Parent = parent or self.Section
-	
-	-- Enhanced button styling
-	local ButtonCorner = Instance.new("UICorner")
-	ButtonCorner.CornerRadius = UDim.new(0, 6)
-	ButtonCorner.Parent = Button
 		
 	local Background = Button.Background
-	local BackgroundCorner = Instance.new("UICorner")
-	BackgroundCorner.CornerRadius = UDim.new(0, 6)
-	BackgroundCorner.Parent = Background
 	
 	local TextButton = Background.TextButton
 	TextButton.Text = options.text
-	TextButton.Font = Enum.Font.GothamMedium
 	
-	-- Enhanced button interactions
 	TextButton.MouseButton1Down:Connect(function() 
-		Utility:tween(Background, {BackgroundTransparency = 0, BackgroundColor3 = Theme.PrimaryColor}, 0.2):Play()
-		Utility:tween(TextButton, {TextColor3 = Theme.TertiaryBackgroundColor, TextTransparency = 0}, 0.2):Play()
+		Utility:tween(Background, {BackgroundTransparency = 0}, 0.2):Play()
+		Utility:tween(TextButton, {TextColor3 = Theme.PrimaryColor, TextTransparency = 0}, 0.2):Play()
 		
 		task.delay(0.2, function()
 			Utility:tween(TextButton, {TextColor3 = Theme.SecondaryTextColor, TextTransparency = 0}, 0.2):Play()
-			Utility:tween(Background, {BackgroundTransparency = 0.1, BackgroundColor3 = Theme.SecondaryBackgroundColor}, 0.2):Play()
+			Utility:tween(Background, {BackgroundTransparency = 0.3}, 0.2):Play()
 		end)
 		
 		options.callback() 
 	end)
 	
 	Background.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			Utility:tween(Background, {BackgroundTransparency = 0.05, BackgroundColor3 = Theme.HoverColor}, 0.2):Play()
-			Utility:tween(TextButton, {TextColor3 = Theme.PrimaryColor, TextTransparency = 0}, 0.2):Play()
-		end
+		Utility:tween(Background, {BackgroundTransparency = 0.3}, 0.2):Play()
+		Utility:tween(TextButton, {TextColor3 = Theme.PrimaryColor, TextTransparency = 0.3}, 0.2):Play()
 	end)
 	
 	Background.MouseLeave:Connect(function()
-		Utility:tween(Background, {BackgroundTransparency = 0.1, BackgroundColor3 = Theme.SecondaryBackgroundColor}, 0.2):Play()
+		Utility:tween(Background, {BackgroundTransparency = 0}, 0.2):Play()
 		Utility:tween(TextButton, {TextColor3 = Theme.SecondaryTextColor, TextTransparency = 0}, 0.2):Play()
 	end)
 	
@@ -1518,6 +1202,7 @@ function Library:createButton(options: table, parent, scrollingFrame)
 	})
 end
 
+-- Redo textbox later
 function Library:createTextBox(options: table, parent, scrollingFrame)
 	Utility:validateOptions(options, {
 		text = {Default = "Textbox", ExpectedType = "string"},
@@ -1531,25 +1216,13 @@ function Library:createTextBox(options: table, parent, scrollingFrame)
 	TextBox.Visible = true
 	TextBox.Parent = parent or self.Section
 
-	-- Enhanced textbox styling
-	local TextBoxCorner = Instance.new("UICorner")
-	TextBoxCorner.CornerRadius = UDim.new(0, 4)
-	TextBoxCorner.Parent = TextBox
-
 	local TextLabel = TextBox.TextLabel
 	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamMedium
 	
 	local ImageButton = TextLabel.ImageButton
 	
 	local Box = TextLabel.TextBox
 	Box.Text = options.default
-	Box.Font = Enum.Font.Gotham
-
-	-- Enhanced box styling
-	local BoxCorner = Instance.new("UICorner")
-	BoxCorner.CornerRadius = UDim.new(0, 4)
-	BoxCorner.Parent = Box
 
 	local Context = Utility:validateContext({
 		default = {Value = options.default, ExpectedType = "string"},
@@ -1594,6 +1267,7 @@ function Library:createTextBox(options: table, parent, scrollingFrame)
 	})
 end
 
+-- Later put this into a module, but this is fine if it's put here anyways.
 local ChildRemoved = false
 function Library:notify(options: table)
 	Utility:validateOptions(options, {
@@ -1609,41 +1283,15 @@ function Library:notify(options: table)
 	Notification.Parent = ScreenGui.Notifications
 	Notification.Size = UDim2.new(options.scaleX, 0, 0, options.sizeY)
 	
-	-- Enhanced notification styling
-	local NotificationCorner = Instance.new("UICorner")
-	NotificationCorner.CornerRadius = UDim.new(0, 8)
-	NotificationCorner.Parent = Notification
-
-	-- Add gradient to notification
-	local NotificationGradient = Instance.new("UIGradient")
-	NotificationGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Library.Theme.SecondaryBackgroundColor),
-		ColorSequenceKeypoint.new(1, Library.Theme.TertiaryBackgroundColor)
-	}
-	NotificationGradient.Rotation = 45
-	NotificationGradient.Parent = Notification
-
-	-- Add border
-	local NotificationBorder = Instance.new("UIStroke")
-	NotificationBorder.Color = Library.Theme.Line
-	NotificationBorder.Thickness = 1
-	NotificationBorder.Transparency = 0.3
-	NotificationBorder.Parent = Notification
-	
 	local Title = Notification.Title
 	Title.Text = options.title
-	Title.Font = Enum.Font.GothamBold
 	
 	local Body = Notification.Body
 	Body.Text = options.text
-	Body.Font = Enum.Font.Gotham
 	
 	local Line = Notification.Line
-	local LineCorner = Instance.new("UICorner")
-	LineCorner.CornerRadius = UDim.new(0, 2)
-	LineCorner.Parent = Line
 	
-	-- Enhanced notification entrance
+	-- Put transparent objects to not be visible to make cool effect
 	local NotificationTransparentObjects = Utility:getTransparentObjects(Notification)
 	
 	for _, data in ipairs(NotificationTransparentObjects) do
@@ -1652,11 +1300,12 @@ function Library:notify(options: table)
 
 	Notification.BackgroundTransparency = 1
 	
+	-- Get back NotificationTransparentObjects again and make it visible now with cool effect!!
 	for _, data in ipairs(NotificationTransparentObjects) do
-		Utility:tween(data.object, {[data.property] = 0}, 0.3):Play()
+		Utility:tween(data.object, {[data.property] = 0}, 0.2):Play()
 	end
 
-	Utility:tween(Notification, {["BackgroundTransparency"] = 0}, 0.3):Play()
+	Utility:tween(Notification, {["BackgroundTransparency"] = 0}, 0.2):Play()
 
 	local notificationPosition = -24
 	local notificationSize = 0
@@ -1665,57 +1314,64 @@ function Library:notify(options: table)
 	for index, notification in ipairs(ScreenGui.Notifications:GetChildren()) do
 		if index == 1 then
 			notificationSize = notification.AbsoluteSize.Y
-			Utility:tween(notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.3):Play()
+			Utility:tween(notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.2):Play()
 			continue
 		end
 		
+		-- Current notification position
 		notificationPosition -= notificationSize + PADDING_Y
+		-- Update notification size for next time to get proper position
 		notificationSize = notification.Size.Y.Offset
 		Notification.Position = UDim2.new(1, Notification.Position.X.Offset, 1, notificationPosition)
 	end
 	
+	-- Update notification position when notification is removed
 	if not ChildRemoved then
 		ScreenGui.Notifications.ChildRemoved:Connect(function(child)		
 			for index, notification in ipairs(ScreenGui.Notifications:GetChildren()) do
 				if index == 1 then
 					notificationPosition = -14
 					notificationSize = notification.AbsoluteSize.Y
-					Utility:tween(notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.3):Play()
+					Utility:tween(notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.2):Play()
 					continue
 				end
 
+				-- Current notification position
 				notificationPosition -= notificationSize + PADDING_Y
+				-- Update notification size for next time to get proper position
 				notificationSize = notification.AbsoluteSize.Y
-				Utility:tween(notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.3):Play()
+				Utility:tween(notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.2):Play()
 			end
 		end)
 		
 		ChildRemoved = true
 	end
 	
+	-- Auto remove notification after a delay
 	task.delay(options.duration, function()
 		if Notification then
 			for _, data in ipairs(Utility:getTransparentObjects(Notification)) do
-				Utility:tween(data.object, {[data.property] = 1}, 0.3):Play()
+				Utility:tween(data.object, {[data.property] = 1}, 0.2):Play()
 			end
 			
-			Utility:tween(Notification, {["BackgroundTransparency"] = 1}, 0.3):Play()
+			Utility:tween(Notification, {["BackgroundTransparency"] = 1}, 0.2):Play()
 			
-			task.wait(0.3)
+			task.wait(0.2)
 			Notification:Destroy()
 		end
 	end)
 	
-	Utility:tween(Notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.3):Play()
-	task.wait(0.3)
+	-- Show notification
+	Utility:tween(Notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.2):Play()
+	task.wait(0.2)
 	
+	-- Register to Theme
 	Theme:registerToObjects({
 		{object = Notification, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
 		{object = Title, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
 		{object = Title, property = "TextColor3", theme = {"PrimaryTextColor"}},
 		{object = Line, property = "BackgroundColor3", theme = {"Line"}},
 		{object = Body, property = "TextColor3", theme = {"SecondaryTextColor"}},
-		{object = NotificationBorder, property = "Color", theme = {"Line"}},
 	})
 end
 
@@ -1765,6 +1421,7 @@ function Library:LoadTheme(Theme)
 	end
 end
 
+-- Save Manager, Theme Manager, UI settings | Messy ass hell, clean up later.
 function Library:createManager(options: table)
 	Utility:validateOptions(options, {
 		folderName = {Default = "Leny", ExpectedType = "string"},
