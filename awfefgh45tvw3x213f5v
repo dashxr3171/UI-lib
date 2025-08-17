@@ -240,7 +240,6 @@ function Library:destroy()
 	ScreenGui:Destroy()
 end
 
--- ORIGINAL createLabel function (around line 285)
 function Library:createLabel(options: table)
 	Utility:validateOptions(options, {
 		text = {Default = "Main", ExpectedType = "string"},
@@ -277,111 +276,6 @@ function Library:createLabel(options: table)
 		{object = Line, property = "BackgroundColor3", theme = {"Line"}},
 	})
 end
-
--- IMPROVED VERSION - Replace the original with this:
-function Library:createLabel(options: table)
-	Utility:validateOptions(options, {
-		text = {Default = "Main", ExpectedType = "string"},
-		style = {Default = "modern", ExpectedType = "string"}, -- new option
-	})
-
-	options.text = string.upper(options.text)
-
-	local ScrollingFrame = Background.Tabs.Frame.ScrollingFrame
-
-	-- Create a container frame for better styling
-	local Container = Instance.new("Frame")
-	Container.Name = "LabelContainer"
-	Container.Size = UDim2.new(1, 0, 0, 35) -- Taller for better spacing
-	Container.BackgroundTransparency = 1
-	Container.Parent = ScrollingFrame
-
-	-- Add padding
-	local UIPadding = Instance.new("UIPadding")
-	UIPadding.PaddingTop = UDim.new(0, 8)
-	UIPadding.PaddingBottom = UDim.new(0, 8)
-	UIPadding.PaddingLeft = UDim.new(0, 12)
-	UIPadding.PaddingRight = UDim.new(0, 12)
-	UIPadding.Parent = Container
-
-	if options.style == "gradient" then
-		-- Gradient line style
-		local GradientLine = Instance.new("Frame")
-		GradientLine.Name = "GradientLine"
-		GradientLine.Size = UDim2.new(1, 0, 0, 2)
-		GradientLine.Position = UDim2.new(0, 0, 1, -2)
-		GradientLine.BorderSizePixel = 0
-		GradientLine.Parent = Container
-
-		local Gradient = Instance.new("UIGradient")
-		Gradient.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 150, 255)),
-			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 100, 255)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(100, 150, 255))
-		}
-		Gradient.Parent = GradientLine
-
-	elseif options.style == "dots" then
-		-- Dotted line style
-		for i = 1, 10 do
-			local Dot = Instance.new("Frame")
-			Dot.Name = "Dot" .. i
-			Dot.Size = UDim2.new(0, 3, 0, 3)
-			Dot.Position = UDim2.new((i-1) * 0.1, 0, 1, -6)
-			Dot.BackgroundColor3 = Theme.PrimaryColor
-			Dot.BorderSizePixel = 0
-			Dot.Parent = Container
-
-			local Corner = Instance.new("UICorner")
-			Corner.CornerRadius = UDim.new(0, 2)
-			Corner.Parent = Dot
-		end
-
-	elseif options.style == "accent" then
-		-- Accent line with glow effect
-		local AccentLine = Instance.new("Frame")
-		AccentLine.Name = "AccentLine"
-		AccentLine.Size = UDim2.new(0.3, 0, 0, 3) -- Shorter line
-		AccentLine.Position = UDim2.new(0, 0, 1, -3)
-		AccentLine.BackgroundColor3 = Theme.PrimaryColor
-		AccentLine.BorderSizePixel = 0
-		AccentLine.Parent = Container
-
-		local Corner = Instance.new("UICorner")
-		Corner.CornerRadius = UDim.new(0, 2)
-		Corner.Parent = AccentLine
-
-	else
-		-- Default modern clean style (no line)
-		-- Just clean spacing, no visual separator
-	end
-
-	local TextLabel = Assets.Tabs.TextLabel:Clone()
-	TextLabel.Visible = true
-	TextLabel.Text = options.text
-	TextLabel.Font = Enum.Font.GothamBold -- Better font
-	TextLabel.TextSize = 12 -- Smaller, more subtle
-	TextLabel.Parent = Container
-
-	for _, line in ipairs(ScrollingFrame:GetChildren()) do
-		if line.Name == "Line" then -- Remove old style lines
-			self.lineIndex += 1
-			if self.lineIndex == 1 then
-				line:Destroy()
-			end
-		end
-	end
-	
-	Theme:registerToObjects({
-		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
-	})
-end
-
--- USAGE EXAMPLES:
--- Library:createLabel({text = "Main"}) -- Clean modern style (default)
--- Library:createLabel({text = "Settings", style = "gradient"}) -- Gradient line
--- Library:createLabel({text = "Controls", style = "dots"}) -- Dotted line  
--- Library:createLabel({text = "Advanced", style = "accent"}) -- Accent line
 
 function Library:createTab(options: table)
 	Utility:validateOptions(options, {
