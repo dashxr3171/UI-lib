@@ -720,57 +720,6 @@ function Library:createSubTab(options: table)
 	return PassingContext
 end
 
-function Library:createSection(options: table)
-	Utility:validateOptions(options, {
-		text = {Default = "Section", ExpectedType = "string"},
-		position = {Default = "Left", ExpectedType = "string"},
-	})
-		
-	local Section = Assets.Pages.Section:Clone()
-	Section.Visible = true
-	Section.Parent = self[options.position]
-
-	-- Change section style 
-	local screenSize = workspace.CurrentCamera.ViewportSize
-	if self.sectionStyle == "Single" or (screenSize.X <= 740 and screenSize.Y <= 590) or self.sizeX <= 660 then
-		if (options.position == "Right") then
-			table.insert(self.SectionFolder.Right, {folders = {Left = self.Left, Right = self.Right}, object = Section})
-		end
-		
-		self.Right.Visible = false
-		self.Left.Size = UDim2.fromScale(1, 1)
-		Section.Parent = self.Left
-	end
-
-	-- Store objects to change section style depending on the size of the UI
-	if (options.position == "Right" and self.sectionStyle ~= "Single") then
-		table.insert(self.SectionFolder.Right, {folders = {Left = self.Left, Right = self.Right}, object = Section})
-	end
-
-	if (options.position == "Left" and self.sectionStyle ~= "Single") then
-		table.insert(self.SectionFolder.Left, {folders = {Left = self.Left, Right = self.Right}, object = Section})
-	end
-	
-	local Inner = Section.Inner
-
-	local TextLabel = Inner.TextLabel
-	TextLabel.Text = options.text
-
-	-- Auto size section
-	Section.Inner.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		Section.Size = UDim2.new(1, 0, 0, Section.Inner.UIListLayout.AbsoluteContentSize.Y + 28)
-	end)
-	
-	Theme:registerToObjects({
-		{object = Section, property = "BackgroundColor3", theme = {"Line"}},
-		{object = Inner, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
-		{object = TextLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
-	})
-
-	local PassingContext = setmetatable({Section = Inner, ScrollingFrame = Section.Parent.Parent}, Library)
-	return PassingContext
-end
-
 function Library:createToggle(options: table, parent, scrollingFrame)
 	Utility:validateOptions(options, {
 		text = {Default = "Toggle", ExpectedType = "string"},
