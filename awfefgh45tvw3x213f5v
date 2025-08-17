@@ -249,7 +249,12 @@ function Library:createLabel(options: table)
 
 	local ScrollingFrame = Background.Tabs.Frame.ScrollingFrame
 
-	-- Create dot separator instead of line
+	local TextLabel = Assets.Tabs.TextLabel:Clone()
+	TextLabel.Visible = true
+	TextLabel.Text = options.text
+	TextLabel.Parent = ScrollingFrame
+
+	-- Create dot separator AFTER the text label
 	local DotContainer = Instance.new("Frame")
 	DotContainer.Name = "DotSeparator"
 	DotContainer.Size = UDim2.new(1, 0, 0, 16)
@@ -269,11 +274,6 @@ function Library:createLabel(options: table)
 	local Corner = Instance.new("UICorner")
 	Corner.CornerRadius = UDim.new(0.5, 0)
 	Corner.Parent = Dot
-
-	local TextLabel = Assets.Tabs.TextLabel:Clone()
-	TextLabel.Visible = true
-	TextLabel.Text = options.text
-	TextLabel.Parent = ScrollingFrame
 
 	for _, separator in ipairs(ScrollingFrame:GetChildren()) do
 		if separator.Name ~= "DotSeparator" then
