@@ -249,31 +249,47 @@ function Library:createLabel(options: table)
 
 	local ScrollingFrame = Background.Tabs.Frame.ScrollingFrame
 
-	local Line = Assets.Tabs.Line:Clone()
-	Line.Visible = true
-	Line.BackgroundColor3 = Theme.Line
-	Line.Parent = ScrollingFrame
+	-- Create dot separator instead of line
+	local DotContainer = Instance.new("Frame")
+	DotContainer.Name = "DotSeparator"
+	DotContainer.Size = UDim2.new(1, 0, 0, 16)
+	DotContainer.BackgroundTransparency = 1
+	DotContainer.Parent = ScrollingFrame
+
+	local Dot = Instance.new("Frame")
+	Dot.Name = "Dot"
+	Dot.Size = UDim2.fromOffset(4, 4)
+	Dot.Position = UDim2.new(0.5, -2, 0.5, -2) -- Center the dot
+	Dot.BackgroundColor3 = Theme.SecondaryTextColor
+	Dot.BackgroundTransparency = 0.6
+	Dot.BorderSizePixel = 0
+	Dot.Parent = DotContainer
+
+	-- Make it circular
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(0.5, 0)
+	Corner.Parent = Dot
 
 	local TextLabel = Assets.Tabs.TextLabel:Clone()
 	TextLabel.Visible = true
 	TextLabel.Text = options.text
 	TextLabel.Parent = ScrollingFrame
 
-	for _, line in ipairs(ScrollingFrame:GetChildren()) do
-		if line.Name ~= "Line" then
+	for _, separator in ipairs(ScrollingFrame:GetChildren()) do
+		if separator.Name ~= "DotSeparator" then
 			continue
 		end
 
 		self.lineIndex += 1
 
 		if self.lineIndex == 1 then
-			line:Destroy()
+			separator:Destroy()
 		end
 	end
 	
 	Theme:registerToObjects({
 		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
-		{object = Line, property = "BackgroundColor3", theme = {"Line"}},
+		{object = Dot, property = "BackgroundColor3", theme = {"SecondaryTextColor"}},
 	})
 end
 
