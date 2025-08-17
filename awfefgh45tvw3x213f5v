@@ -407,7 +407,7 @@ function Library:createTab(options: table)
 	return PassingContext
 end
 
-ffunction Library:createSubTab(options: table)
+function Library:createSubTab(options: table)
 	-- Use provided options, or fall back to defaults if not provided	
 	Utility:validateOptions(options, {
 		sectionStyle = {Default = "Double", ExpectedType = "string"},
