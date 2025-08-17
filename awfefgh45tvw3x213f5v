@@ -437,16 +437,16 @@ function Library:createSubTab(options: table)
 	SubTab.TextSize = 14
 	SubTab.ZIndex = 1 -- Base ZIndex for layering
 	
-	-- Add subtle shadow effect
+	-- Add subtle shadow effect (as sibling, not child)
 	local Shadow = Instance.new("Frame")
-	Shadow.Name = "Shadow"
-	Shadow.Size = UDim2.new(1, 4, 1, 4) -- Larger shadow that extends beyond the tab
-	Shadow.Position = UDim2.new(0, 2, 0, 2) -- Offset down and right
+	Shadow.Name = "Shadow_" .. options.text
+	Shadow.Size = UDim2.new(0, textSize.X + 28, 0, 32) -- Match tab size plus shadow offset
+	Shadow.Position = UDim2.new(0, subTabPosition + 2, 0, 2) -- Offset down and right from tab position
 	Shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	Shadow.BackgroundTransparency = 0.85 -- More visible shadow
+	Shadow.BackgroundTransparency = 0.85
 	Shadow.BorderSizePixel = 0
 	Shadow.ZIndex = SubTab.ZIndex - 1
-	Shadow.Parent = SubTab
+	Shadow.Parent = ScrollingFrame -- Same parent as SubTab, not as child
 	
 	-- Add icon/indicator for active state
 	local ActiveIndicator = Instance.new("Frame")
@@ -545,7 +545,7 @@ function Library:createSubTab(options: table)
 		
 		-- Animate active indicator and shadow
 		local indicator = subTab:FindFirstChild("ActiveIndicator")
-		local shadow = subTab:FindFirstChild("Shadow")
+		local shadow = ScrollingFrame:FindFirstChild("Shadow_" .. options.text) -- Look for shadow in ScrollingFrame
 		
 		if indicator then
 			local indicatorTween = Utility:tween(indicator, {
