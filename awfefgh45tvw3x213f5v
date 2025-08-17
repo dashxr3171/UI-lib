@@ -256,7 +256,7 @@ function Library:createLabel(options: table)
     LabelContainer.BackgroundTransparency = 1
     LabelContainer.Parent = ScrollingFrame
 
-    -- Create dot on the left side
+    -- Create dot on the left side (ALWAYS create it)
     local Dot = Instance.new("Frame")
     Dot.Name = "Dot"
     Dot.Size = UDim2.fromOffset(4, 4)
@@ -279,18 +279,7 @@ function Library:createLabel(options: table)
     TextLabel.Size = UDim2.new(1, -20, 1, 0) -- Take remaining width
     TextLabel.Parent = LabelContainer
 
-    -- Count existing label containers to determine if this is the first one
-    local labelCount = 0
-    for _, container in ipairs(ScrollingFrame:GetChildren()) do
-        if container.Name == "LabelContainer" then
-            labelCount += 1
-        end
-    end
-
-    -- Only hide the dot for the first label (keep the text)
-    if labelCount == 1 then
-        Dot.Visible = false -- Hide the dot for the first label instead of destroying the whole container
-    end
+    -- REMOVED the logic that was hiding the first dot!
     
     Theme:registerToObjects({
         {object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
