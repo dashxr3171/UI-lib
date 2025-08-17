@@ -318,7 +318,7 @@ function Library:createTab(options: table)
 	local SubTabs = Page.SubTabs
 	local SubLine = SubTabs.Line
 
-	local function tweenTabAssets(tab: Instance, icon: Instance, CreateLabel: Instance, color: textColor3, backgroundColor3: Color3, backgroundTransparency: number, textTransparency: number, imageTransparency: number)
+	local function tweenTabAssets(tab: Instance, icon: Instance, textButton: Instance, color: textColor3, backgroundColor3: Color3, backgroundTransparency: number, textTransparency: number, imageTransparency: number)
 		Utility:tween(tab, {BackgroundColor3 = backgroundColor3, BackgroundTransparency = backgroundTransparency}, 0.5):Play()
 		Utility:tween(icon, {ImageTransparency = imageTransparency, ImageColor3 = color}, 0.5):Play()
 		Utility:tween(textButton, {TextColor3 = color, TextTransparency = textTransparency}, 0.5):Play()
