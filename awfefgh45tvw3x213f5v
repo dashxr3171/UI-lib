@@ -317,16 +317,66 @@ function Library:createTab(options: table)
 	Page.Parent = Background.Pages
 	
 	local Frame = Page.Frame
+	
+	-- Add subtle gradient background to Frame
+	local BackgroundGradient = Instance.new("UIGradient")
+	BackgroundGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.new(Theme.PrimaryBackgroundColor.R * 1.05, Theme.PrimaryBackgroundColor.G * 1.05, Theme.PrimaryBackgroundColor.B * 1.05)),
+		ColorSequenceKeypoint.new(1, Theme.PrimaryBackgroundColor)
+	}
+	BackgroundGradient.Rotation = 135
+	BackgroundGradient.Parent = Frame
+	
 	local PageLine = Frame.Line
 
+	-- Style the CurrentTabLabel with elegant minimal design
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Theme.PrimaryTextColor
-	CurrentTabLabel.Font = Enum.Font.GothamBold
-    CurrentTabLabel.TextSize = 18
+	CurrentTabLabel.Font = Enum.Font.Gotham
+    CurrentTabLabel.TextSize = 24
+	CurrentTabLabel.BackgroundTransparency = 1
+	
+	-- Add left accent bar to CurrentTabLabel
+	local AccentBar = Instance.new("Frame")
+	AccentBar.Name = "AccentBar"
+	AccentBar.Size = UDim2.new(0, 4, 0, 20)
+	AccentBar.Position = UDim2.new(0, -12, 0.5, -10)
+	AccentBar.BackgroundColor3 = Theme.PrimaryColor
+	AccentBar.BorderSizePixel = 0
+	AccentBar.Parent = CurrentTabLabel
+
+	-- Add rounded corners to accent bar
+	local AccentCorner = Instance.new("UICorner")
+	AccentCorner.CornerRadius = UDim.new(0, 2)
+	AccentCorner.Parent = AccentBar
+
+	-- Add gradient to accent bar
+	local AccentGradient = Instance.new("UIGradient")
+	AccentGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Theme.PrimaryColor),
+		ColorSequenceKeypoint.new(1, Color3.new(Theme.PrimaryColor.R * 0.8, Theme.PrimaryColor.G * 0.8, Theme.PrimaryColor.B * 0.8))
+	}
+	AccentGradient.Rotation = 135
+	AccentGradient.Parent = AccentBar
 
 	local SubTabs = Page.SubTabs
+	
+	-- Style the SubLine to be more elegant
 	local SubLine = SubTabs.Line
+	SubLine.Size = UDim2.new(1, -48, 0, 1)
+	SubLine.Position = UDim2.new(0, 24, 1, -1)
+	SubLine.BackgroundColor3 = Theme.Line
+	SubLine.BackgroundTransparency = 0.6
+	
+	-- Add gradient to the sub line
+	local SubLineGradient = Instance.new("UIGradient")
+	SubLineGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.new(0, 0, 0, 0)),
+		ColorSequenceKeypoint.new(0.5, Theme.Line),
+		ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0, 0))
+	}
+	SubLineGradient.Parent = SubLine
 
 	local function tweenTabAssets(tab: Instance, icon: Instance, textButton: Instance, color: textColor3, backgroundColor3: Color3, backgroundTransparency: number, textTransparency: number, imageTransparency: number)
 		Utility:tween(tab, {BackgroundColor3 = backgroundColor3, BackgroundTransparency = backgroundTransparency}, 0.5):Play()
@@ -415,6 +465,7 @@ function Library:createTab(options: table)
 		{object = PageLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = SubLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = CurrentTabLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
+		{object = AccentBar, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 	}, "Tab")
 
 	local PassingContext = setmetatable({Page = Page}, Library)
@@ -440,10 +491,13 @@ function Library:createSubTab(options: table)
 	SubTab.Visible = true
 	SubTab.Text = options.text
 	SubTab.TextColor3 = Theme.SecondaryTextColor
+	SubTab.Font = Enum.Font.Gotham
+	SubTab.TextSize = 14
+	SubTab.BackgroundTransparency = 1
 	SubTab.Parent = ScrollingFrame
 
 	local TextService = game:GetService("TextService")
-	SubTab.Size = UDim2.new(0, TextService:GetTextSize(options.text, 15, Enum.Font.MontserratMedium, SubTab.AbsoluteSize).X, 1, 0)
+	SubTab.Size = UDim2.new(0, TextService:GetTextSize(options.text, 15, Enum.Font.Gotham, SubTab.AbsoluteSize).X + 32, 1, 0)
 
 	-- Calculate subTab position to position underline
 	local subTabIndex, subTabPosition = 0, 0
@@ -471,7 +525,30 @@ function Library:createSubTab(options: table)
 		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
 
 		if not disableUnderlineTween then
-			Utility:tween(underline, {BackgroundColor3 = Theme.PrimaryColor, Position = UDim2.new(0, subTabPosition, 1, 0), Size = UDim2.new(0, subTab.Size.X.Offset, 0, 2)}, 0.2):Play()
+			-- Style the underline with elegant design
+			Utility:tween(underline, {
+				BackgroundColor3 = Theme.PrimaryColor, 
+				Position = UDim2.new(0, subTabPosition, 1, 0), 
+				Size = UDim2.new(0, subTab.Size.X.Offset, 0, 2)
+			}, 0.2):Play()
+			
+			-- Add gradient effect to underline if it doesn't exist
+			if not underline:FindFirstChild("UIGradient") then
+				local gradient = Instance.new("UIGradient")
+				gradient.Color = ColorSequence.new{
+					ColorSequenceKeypoint.new(0, Theme.PrimaryColor),
+					ColorSequenceKeypoint.new(1, Color3.new(Theme.PrimaryColor.R * 0.7, Theme.PrimaryColor.G * 0.7, Theme.PrimaryColor.B * 0.7))
+				}
+				gradient.Rotation = 90
+				gradient.Parent = underline
+			end
+			
+			-- Add rounded corners to underline
+			if not underline:FindFirstChild("UICorner") then
+				local corner = Instance.new("UICorner")
+				corner.CornerRadius = UDim.new(0, 1)
+				corner.Parent = underline
+			end
 		end
 	end
 
@@ -532,9 +609,7 @@ function Library:createSubTab(options: table)
 		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
 	}, "SubTab")
 
-	local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = options.sectionStyle}, Library)
-	return PassingContext
-end
+	local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = opt
 
 function Library:createSection(options: table)
 	Utility:validateOptions(options, {
