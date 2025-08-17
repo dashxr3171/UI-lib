@@ -241,60 +241,61 @@ function Library:destroy()
 end
 
 function Library:createLabel(options: table)
-	Utility:validateOptions(options, {
-		text = {Default = "Main", ExpectedType = "string"},
-	})
+    Utility:validateOptions(options, {
+        text = {Default = "Main", ExpectedType = "string"},
+    })
 
-	options.text = string.upper(options.text)
+    options.text = string.upper(options.text)
 
-	local ScrollingFrame = Background.Tabs.Frame.ScrollingFrame
+    local ScrollingFrame = Background.Tabs.Frame.ScrollingFrame
 
-	-- Create container for both dot and text
-	local LabelContainer = Instance.new("Frame")
-	LabelContainer.Name = "LabelContainer"
-	LabelContainer.Size = UDim2.new(1, 0, 0, 20)
-	LabelContainer.BackgroundTransparency = 1
-	LabelContainer.Parent = ScrollingFrame
+    -- Create container for both dot and text
+    local LabelContainer = Instance.new("Frame")
+    LabelContainer.Name = "LabelContainer"
+    LabelContainer.Size = UDim2.new(1, 0, 0, 20)
+    LabelContainer.BackgroundTransparency = 1
+    LabelContainer.Parent = ScrollingFrame
 
-	-- Create dot on the left side
-	local Dot = Instance.new("Frame")
-	Dot.Name = "Dot"
-	Dot.Size = UDim2.fromOffset(4, 4)
-	Dot.Position = UDim2.new(0, 8, 0.5, -2) -- 8 pixels from left, vertically centered
-	Dot.BackgroundColor3 = Theme.SecondaryTextColor
-	Dot.BackgroundTransparency = 0.6
-	Dot.BorderSizePixel = 0
-	Dot.Parent = LabelContainer
+    -- Create dot on the left side
+    local Dot = Instance.new("Frame")
+    Dot.Name = "Dot"
+    Dot.Size = UDim2.fromOffset(4, 4)
+    Dot.Position = UDim2.new(0, 8, 0.5, -2) -- 8 pixels from left, vertically centered
+    Dot.BackgroundColor3 = Theme.SecondaryTextColor
+    Dot.BackgroundTransparency = 0.6
+    Dot.BorderSizePixel = 0
+    Dot.Parent = LabelContainer
 
-	-- Make it circular
-	local Corner = Instance.new("UICorner")
-	Corner.CornerRadius = UDim.new(0.5, 0)
-	Corner.Parent = Dot
+    -- Make it circular
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0.5, 0)
+    Corner.Parent = Dot
 
-	-- Create text label next to the dot
-	local TextLabel = Assets.Tabs.TextLabel:Clone()
-	TextLabel.Visible = true
-	TextLabel.Text = options.text
-	TextLabel.Position = UDim2.new(0, 20, 0, 0) -- Start 20 pixels from left (after dot)
-	TextLabel.Size = UDim2.new(1, -20, 1, 0) -- Take remaining width
-	TextLabel.Parent = LabelContainer
+    -- Create text label next to the dot
+    local TextLabel = Assets.Tabs.TextLabel:Clone()
+    TextLabel.Visible = true
+    TextLabel.Text = options.text
+    TextLabel.Position = UDim2.new(0, 20, 0, 0) -- Start 20 pixels from left (after dot)
+    TextLabel.Size = UDim2.new(1, -20, 1, 0) -- Take remaining width
+    TextLabel.Parent = LabelContainer
 
-	for _, container in ipairs(ScrollingFrame:GetChildren()) do
-		if container.Name ~= "LabelContainer" then
-			continue
-		end
+    -- Count existing label containers to determine if this is the first one
+    local labelCount = 0
+    for _, container in ipairs(ScrollingFrame:GetChildren()) do
+        if container.Name == "LabelContainer" then
+            labelCount += 1
+        end
+    end
 
-		self.lineIndex += 1
-
-		if self.lineIndex == 1 then
-			container:Destroy()
-		end
-	end
-	
-	Theme:registerToObjects({
-		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
-		{object = Dot, property = "BackgroundColor3", theme = {"SecondaryTextColor"}},
-	})
+    -- Only hide the dot for the first label (keep the text)
+    if labelCount == 1 then
+        Dot.Visible = false -- Hide the dot for the first label instead of destroying the whole container
+    end
+    
+    Theme:registerToObjects({
+        {object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
+        {object = Dot, property = "BackgroundColor3", theme = {"SecondaryTextColor"}},
+    })
 end
 
 function Library:createTab(options: table)
