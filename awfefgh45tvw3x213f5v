@@ -475,7 +475,7 @@ function Library:createSubTab(options: table)
 			subTabPosition = 8 -- Add initial padding
 		else				
 			local condition, object = Utility:lookBeforeChildOfObject(index, ScrollingFrame, "SubTab")
-			subTabPosition += subTab.Size.X.Offset + 6 -- Reduced spacing between tabs
+			subTabPosition += subTab.Size.X.Offset + 2 -- Much closer spacing between tabs
 
 			if condition then
 				subTabPosition -= (subTab.Size.X.Offset - object.Size.X.Offset)
@@ -488,21 +488,28 @@ function Library:createSubTab(options: table)
 		local originalSize = subTab.Size
 		local targetScale = scaleEffect and 1.05 or 1
 		
+		-- Stop any existing tweens first to prevent conflicts
+		for _, tween in pairs(subTab:GetChildren()) do
+			if tween:IsA("Tween") then
+				tween:Cancel()
+			end
+		end
+		
 		-- Create smooth color and size transitions
 		local colorTween = Utility:tween(subTab, {
 			TextColor3 = textColor, 
 			TextTransparency = textTransparency,
 			BackgroundColor3 = backgroundColor,
-		}, 0.25, "Quart", "Out")
+		}, 0.2, "Quart", "Out")
 		
 		local sizeTween = Utility:tween(subTab, {
 			Size = UDim2.new(0, originalSize.X.Offset * targetScale, 0, 28)
-		}, 0.25, "Back", "Out")
+		}, 0.2, "Back", "Out")
 		
 		local borderTween = Utility:tween(Border, {
 			Color = borderColor,
 			Transparency = borderTransparency
-		}, 0.25, "Quart", "Out")
+		}, 0.2, "Quart", "Out")
 		
 		colorTween:Play()
 		sizeTween:Play()
@@ -599,8 +606,50 @@ function Library:createSubTab(options: table)
 	Right.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
 
 	SubTab.MouseButton1Down:Connect(Navigation:selectTab())
-	SubTab.MouseEnter:Connect(Navigation:hoverEffect(true))
-	SubTab.MouseLeave:Connect(Navigation:hoverEffect(false))
+	
+	-- Fixed hover handling to prevent conflicts
+	local isHovering = false
+	local isActive = false
+	
+	SubTab.MouseEnter:Connect(function()
+		isHovering = true
+		if not isActive then
+			Navigation:hoverEffect(true)()
+		end
+	end)
+	
+	SubTab.MouseLeave:Connect(function()
+		isHovering = false
+		task.wait(0.05) -- Small delay to ensure proper state handling
+		if not isActive and not isHovering then
+			Navigation:hoverEffect(false)()
+		end
+	end)
+	
+	-- Update active state tracking when tab is selected
+	local originalSelectTab = Navigation.selectTab
+	Navigation.selectTab = function()
+		return function()
+			-- Set all other tabs as inactive
+			for _, otherTab in ipairs(ScrollingFrame:GetChildren()) do
+				if otherTab.Name == "SubTab" and otherTab ~= SubTab then
+					-- Reset other tabs to inactive state
+					tweenSubTabAssets(
+						otherTab, 
+						Theme.SecondaryTextColor,
+						0, 
+						Theme.SecondaryBackgroundColor,
+						Theme.Line,
+						1,
+						false
+					)
+				end
+			end
+			
+			isActive = true
+			originalSelectTab()()
+		end
+	end
 	
 	-- Enhanced theme registration
 	Theme:registerToObjects({
