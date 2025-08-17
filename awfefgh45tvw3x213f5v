@@ -493,6 +493,14 @@ function Library:createSubTab(options: table)
 	local textSize = TextService:GetTextSize(options.text, 14, Enum.Font.GothamMedium, Vector2.new(math.huge, 32))
 	SubTab.Size = UDim2.new(0, textSize.X + 24, 0, 28) -- Reduced height and padding
 
+	-- Add padding for better text positioning
+	local Padding = Instance.new("UIPadding")
+	Padding.PaddingLeft = UDim.new(0, 12)
+	Padding.PaddingRight = UDim.new(0, 12)
+	Padding.PaddingTop = UDim.new(0, 6)
+	Padding.PaddingBottom = UDim.new(0, 6)
+	Padding.Parent = SubTab
+
 	-- Calculate subTab position with very tight spacing
 	local subTabIndex, subTabPosition = 0, 0
 
@@ -510,6 +518,9 @@ function Library:createSubTab(options: table)
 			subTabPosition += 2 -- Only 2 pixels between tabs
 		end
 	end
+
+	-- Now position the shadow correctly
+	Shadow.Position = UDim2.new(0, subTabPosition + 2, 0, 2)
 
 	-- Enhanced animation functions with smooth transitions
 	local function tweenSubTabAssets(subTab, textColor, textTransparency: number, backgroundColor, borderColor, borderTransparency, scaleEffect)
