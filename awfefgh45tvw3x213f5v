@@ -300,6 +300,8 @@ function Library:createTab(options: table)
 
 	local TextButton = ImageButton.TextButton
 	TextButton.Text = options.text
+	TextButton.Font = Enum.Font.Gotham
+    TextButton.TextSize = 14
 
 	local Page = Assets.Pages.Page:Clone()
 	Page.Parent = Background.Pages
@@ -310,6 +312,8 @@ function Library:createTab(options: table)
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Theme.PrimaryTextColor
+	CurrentTabLabel.Font = Enum.Font.GothamBold
+    CurrentTabLabel.TextSize = 18
 
 	local SubTabs = Page.SubTabs
 	local SubLine = SubTabs.Line
@@ -1672,16 +1676,15 @@ function Library:createManager(options: table)
 	end})
 end
 
--- Set users theme choice or default theme when initiliazed, could make this cleaner lol, but nah.
-Library.Theme.PrimaryBackgroundColor = Library.Theme.PrimaryBackgroundColor
-Library.Theme.SecondaryBackgroundColor = Library.Theme.SecondaryBackgroundColor
-Library.Theme.TertiaryBackgroundColor = Library.Theme.TertiaryBackgroundColor -- new
-Library.Theme.TabBackgroundColor = Library.Theme.TabBackgroundColor
-Library.Theme.PrimaryTextColor = Library.Theme.PrimaryTextColor
-Library.Theme.SecondaryTextColor = Library.Theme.SecondaryTextColor
-Library.Theme.PrimaryColor = Library.Theme.PrimaryColor
-Library.Theme.ScrollingBarImageColor = Library.Theme.ScrollingBarImageColor
-Library.Theme.Line = Library.Theme.Line
+Library.Theme.PrimaryBackgroundColor = Color3.fromRGB(25, 25, 35)
+Library.Theme.SecondaryBackgroundColor = Color3.fromRGB(35, 35, 45)
+Library.Theme.TertiaryBackgroundColor = Color3.fromRGB(45, 45, 55)
+Library.Theme.TabBackgroundColor = Color3.fromRGB(30, 30, 40)
+Library.Theme.PrimaryTextColor = Color3.fromRGB(255, 255, 255)
+Library.Theme.SecondaryTextColor = Color3.fromRGB(200, 200, 210)
+Library.Theme.PrimaryColor = Color3.fromRGB(100, 150, 255)
+Library.Theme.ScrollingBarImageColor = Color3.fromRGB(80, 80, 90)
+Library.Theme.Line = Color3.fromRGB(55, 55, 65)
 
 Theme:registerToObjects({
 	{object = Glow, property = "ImageColor3", theme = {"PrimaryBackgroundColor"}},
