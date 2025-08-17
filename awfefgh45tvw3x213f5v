@@ -415,23 +415,53 @@ function Library:createSubTab(options: table)
 	})
 
 	local Moveable = self.Page.SubTabs.Frame.Moveable
-	local Underline, ScrollingFrame = Moveable.Underline, Moveable.Parent.ScrollingFrame
+	local ScrollingFrame = Moveable.Parent.ScrollingFrame
 
 	local SubPage = Assets.Pages.SubPage:Clone()
 	SubPage.Parent = self.Page
 
 	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
 
+	-- Create enhanced SubTab with modern styling
 	local SubTab = Assets.Pages.SubTab:Clone()
 	SubTab.Visible = true
 	SubTab.Text = options.text
 	SubTab.TextColor3 = Theme.SecondaryTextColor
 	SubTab.Parent = ScrollingFrame
+	
+	-- Enhanced styling properties
+	SubTab.BackgroundTransparency = 0
+	SubTab.BackgroundColor3 = Theme.SecondaryBackgroundColor
+	SubTab.BorderSizePixel = 0
+	SubTab.Font = Enum.Font.GothamMedium
+	SubTab.TextSize = 14
+	
+	-- Add rounded corners for modern look
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(0, 8)
+	Corner.Parent = SubTab
+	
+	-- Add subtle border effect
+	local Border = Instance.new("UIStroke")
+	Border.Color = Theme.Line
+	Border.Thickness = 1
+	Border.Transparency = 0.7
+	Border.Parent = SubTab
+	
+	-- Add padding for better text positioning
+	local Padding = Instance.new("UIPadding")
+	Padding.PaddingLeft = UDim.new(0, 16)
+	Padding.PaddingRight = UDim.new(0, 16)
+	Padding.PaddingTop = UDim.new(0, 8)
+	Padding.PaddingBottom = UDim.new(0, 8)
+	Padding.Parent = SubTab
 
+	-- Calculate SubTab size with enhanced padding
 	local TextService = game:GetService("TextService")
-	SubTab.Size = UDim2.new(0, TextService:GetTextSize(options.text, 15, Enum.Font.MontserratMedium, SubTab.AbsoluteSize).X, 1, 0)
+	local textSize = TextService:GetTextSize(options.text, 14, Enum.Font.GothamMedium, Vector2.new(math.huge, 32))
+	SubTab.Size = UDim2.new(0, textSize.X + 32, 0, 32) -- Fixed height for consistency
 
-	-- Calculate subTab position to position underline
+	-- Calculate subTab position with better spacing
 	local subTabIndex, subTabPosition = 0, 0
 
 	for index, subTab in ipairs(ScrollingFrame:GetChildren()) do
@@ -442,10 +472,10 @@ function Library:createSubTab(options: table)
 		subTabIndex += 1
 
 		if subTabIndex == 1 then
-			subTabPosition = 0
+			subTabPosition = 8 -- Add initial padding
 		else				
 			local condition, object = Utility:lookBeforeChildOfObject(index, ScrollingFrame, "SubTab")
-			subTabPosition += subTab.Size.X.Offset + ScrollingFrame.UIListLayout.Padding.Offset
+			subTabPosition += subTab.Size.X.Offset + 12 -- Increased spacing between tabs
 
 			if condition then
 				subTabPosition -= (subTab.Size.X.Offset - object.Size.X.Offset)
@@ -453,11 +483,57 @@ function Library:createSubTab(options: table)
 		end
 	end
 
-	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
-		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
-
-		if not disableUnderlineTween then
-			Utility:tween(underline, {BackgroundColor3 = Theme.PrimaryColor, Position = UDim2.new(0, subTabPosition, 1, 0), Size = UDim2.new(0, subTab.Size.X.Offset, 0, 2)}, 0.2):Play()
+	-- Enhanced animation functions with smooth transitions
+	local function tweenSubTabAssets(subTab, textColor, textTransparency: number, backgroundColor, borderColor, borderTransparency, scaleEffect)
+		local originalSize = subTab.Size
+		local targetScale = scaleEffect and 1.05 or 1
+		
+		-- Create smooth color and size transitions
+		local colorTween = Utility:tween(subTab, {
+			TextColor3 = textColor, 
+			TextTransparency = textTransparency,
+			BackgroundColor3 = backgroundColor,
+		}, 0.25, "Quart", "Out")
+		
+		local sizeTween = Utility:tween(subTab, {
+			Size = UDim2.new(0, originalSize.X.Offset * targetScale, 0, 32)
+		}, 0.25, "Back", "Out")
+		
+		local borderTween = Utility:tween(Border, {
+			Color = borderColor,
+			Transparency = borderTransparency
+		}, 0.25, "Quart", "Out")
+		
+		colorTween:Play()
+		sizeTween:Play()
+		borderTween:Play()
+		
+		-- Add subtle glow effect for active state
+		if scaleEffect then
+			local glow = subTab:FindFirstChild("Glow")
+			if not glow then
+				glow = Instance.new("Frame")
+				glow.Name = "Glow"
+				glow.Size = UDim2.new(1, 4, 1, 4)
+				glow.Position = UDim2.new(0.5, 0, 0.5, 0)
+				glow.AnchorPoint = Vector2.new(0.5, 0.5)
+				glow.BackgroundColor3 = Theme.PrimaryColor
+				glow.BackgroundTransparency = 0.9
+				glow.BorderSizePixel = 0
+				glow.ZIndex = subTab.ZIndex - 1
+				glow.Parent = subTab
+				
+				local glowCorner = Instance.new("UICorner")
+				glowCorner.CornerRadius = UDim.new(0, 10)
+				glowCorner.Parent = glow
+			end
+			
+			Utility:tween(glow, {BackgroundTransparency = 0.7}, 0.25):Play()
+		else
+			local glow = subTab:FindFirstChild("Glow")
+			if glow then
+				Utility:tween(glow, {BackgroundTransparency = 1}, 0.25):Play()
+			end
 		end
 	end
 
@@ -467,10 +543,11 @@ function Library:createSubTab(options: table)
 	end
 
 	local function updateSectionAnimation()
-		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 10)}, 0.2):Play()
+		-- Enhanced animation with smooth bounce effect
+		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 12)}, 0.2, "Back", "Out"):Play()
 
 		task.delay(0.2, function()
-			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.2):Play()
+			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.3, "Back", "Out"):Play()
 		end)
 	end
 
@@ -482,19 +559,55 @@ function Library:createSubTab(options: table)
 		animation = {Value = updateSectionAnimation, ExpectedType = "function"},
 
 		tweenTabOn = {Value = function()
-			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0, false)
+			tweenSubTabAssets(
+				SubTab, 
+				Theme.TertiaryBackgroundColor, -- Light text for active state
+				0, 
+				Theme.PrimaryColor, -- Primary color background
+				Theme.PrimaryColor, -- Matching border
+				0.2,
+				true -- Scale effect enabled
+			)
 		end, ExpectedType = "function"},
 
 		tweenTabsOff = {Value = function(subTab)
-			tweenSubTabAssets(subTab, Underline, Theme.SecondaryTextColor, 0, true)
+			tweenSubTabAssets(
+				subTab, 
+				Theme.SecondaryTextColor, -- Normal text color
+				0, 
+				Theme.SecondaryBackgroundColor, -- Normal background
+				Theme.Line, -- Subtle border
+				0.7,
+				false -- No scale effect
+			)
 		end, ExpectedType = "function"},
 
 		hoverOn = {Value = function()
-			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0.3, true)
+			tweenSubTabAssets(
+				SubTab, 
+				Theme.PrimaryColor, -- Primary color text on hover
+				0, 
+				Color3.fromRGB(
+					math.min(255, Theme.SecondaryBackgroundColor.R * 255 + 15),
+					math.min(255, Theme.SecondaryBackgroundColor.G * 255 + 15),
+					math.min(255, Theme.SecondaryBackgroundColor.B * 255 + 15)
+				), -- Slightly lighter background
+				Theme.PrimaryColor, -- Primary color border
+				0.3,
+				false -- No scale on hover
+			)
 		end, ExpectedType = "function"},
 
 		hoverOff = {Value = function()
-			tweenSubTabAssets(SubTab, Underline, Theme.SecondaryTextColor, 0, true)
+			tweenSubTabAssets(
+				SubTab, 
+				Theme.SecondaryTextColor, 
+				0, 
+				Theme.SecondaryBackgroundColor,
+				Theme.Line,
+				0.7,
+				false
+			)
 		end, ExpectedType = "function"},
 	})
 
@@ -512,9 +625,11 @@ function Library:createSubTab(options: table)
 	SubTab.MouseEnter:Connect(Navigation:hoverEffect(true))
 	SubTab.MouseLeave:Connect(Navigation:hoverEffect(false))
 	
+	-- Enhanced theme registration
 	Theme:registerToObjects({
-		{object = Underline, property = "BackgroundColor3", theme = {"PrimaryColor"}},
-		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
+		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "TertiaryBackgroundColor"}},
+		{object = SubTab, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor", "PrimaryColor"}},
+		{object = Border, property = "Color", theme = {"Line", "PrimaryColor"}},
 		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
 	}, "SubTab")
 
