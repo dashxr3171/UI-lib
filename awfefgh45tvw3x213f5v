@@ -141,6 +141,7 @@ function Library.new(options)
 		sizeY = {Default = Library.sizeY, ExpectedType = "number"},
 		tabSizeX = {Default = Library.tabSizeX, ExpectedType = "number"},
 		title = {Default = "Leny", ExpectedType = "string"},
+		folderName = {Default = "Leny", ExpectedType = "string"}
 	})
 	Library.folderName = options.folderName
 	Library.tabSizeX = math.clamp(options.tabSizeX, 72, 200)
