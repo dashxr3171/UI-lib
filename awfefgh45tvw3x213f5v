@@ -320,24 +320,24 @@ function Library:createTab(options: table)
 	
 	local Frame = Page.Frame
 	
-	-- Enhanced Gaming Style Background - MUCH smaller height (10% of original)
-	Frame.BackgroundColor3 = Color3.fromRGB(15, 20, 45)
+	-- Enhanced Gaming Style Background - using theme colors
+	Frame.BackgroundColor3 = Theme.SubBackgroundColor or Theme.BackgroundColor or Theme.PrimaryBackgroundColor
 	Frame.Size = UDim2.new(1, 0, 0.1, 0) -- Dramatically reduced to 10% height
 	
-	-- Add gradient background to Frame
+	-- Add gradient background to Frame using theme colors
 	local UIGradient = Instance.new("UIGradient")
 	UIGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 20, 45)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 25, 65))
+		ColorSequenceKeypoint.new(0, Theme.SubBackgroundColor or Theme.BackgroundColor or Theme.PrimaryBackgroundColor),
+		ColorSequenceKeypoint.new(1, Theme.BackgroundColor or Theme.SubBackgroundColor or Theme.PrimaryBackgroundColor)
 	}
 	UIGradient.Rotation = 135
 	UIGradient.Parent = Frame
 	
-	-- Add top accent line (moved higher above the frame)
+	-- Add top accent line (moved much higher above the frame)
 	local TopAccentLine = Instance.new("Frame")
 	TopAccentLine.Name = "TopAccentLine"
 	TopAccentLine.Size = UDim2.new(1, 0, 0, 2) -- Made slightly thicker
-	TopAccentLine.Position = UDim2.new(0, 0, 0, -5) -- Moved further up above the frame
+	TopAccentLine.Position = UDim2.new(0, 0, 0, -12) -- Moved much further up above the frame
 	TopAccentLine.BorderSizePixel = 0
 	TopAccentLine.Parent = Frame
 	
@@ -397,15 +397,15 @@ function Library:createTab(options: table)
 	SubTabs.Position = UDim2.new(0, 0, 0, 32) -- Moved up closer to title (was 38)
 	SubTabs.Size = UDim2.new(1, 0, 0, 36)
 	
-	-- Make SubTabs blend with main background (unified background)
-	SubTabs.BackgroundColor3 = Color3.fromRGB(15, 20, 45) -- Same as Frame
+	-- Make SubTabs blend with main background using theme colors
+	SubTabs.BackgroundColor3 = Theme.SubBackgroundColor or Theme.BackgroundColor or Theme.PrimaryBackgroundColor
 	SubTabs.BackgroundTransparency = 0 -- Fully opaque to blend
 	
 	-- Add the same gradient to SubTabs for seamless look
 	local SubTabsGradient = Instance.new("UIGradient")
 	SubTabsGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 20, 45)),
-		ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 25, 65))
+		ColorSequenceKeypoint.new(0, Theme.SubBackgroundColor or Theme.BackgroundColor or Theme.PrimaryBackgroundColor),
+		ColorSequenceKeypoint.new(1, Theme.BackgroundColor or Theme.SubBackgroundColor or Theme.PrimaryBackgroundColor)
 	}
 	SubTabsGradient.Rotation = 135
 	SubTabsGradient.Parent = SubTabs
