@@ -609,7 +609,9 @@ function Library:createSubTab(options: table)
 		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
 	}, "SubTab")
 
-	local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = opt
+    local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = options.sectionStyle}, Library)
+return PassingContext
+end
 
 function Library:createSection(options: table)
 	Utility:validateOptions(options, {
