@@ -505,7 +505,7 @@ function Library:createSubTab(options: table)
 			
 			-- Center the underline under the text
 			local textPadding = (subTab.AbsoluteSize.X - actualTextBounds.X) / 2
-			local finalPosition = relativePosition + textPadding - 4
+			local finalPosition = relativePosition + textPadding - 9
 			
 			-- Apply the underline
 			Utility:tween(underline, {
