@@ -497,9 +497,9 @@ function Library:createSubTab(options: table)
 	SubTab.Parent = ScrollingFrame
 
 	local TextService = game:GetService("TextService")
-	-- Fixed: Use the correct text size (14) to match the actual SubTab.TextSize
+	-- Fixed: Use the correct text size (14) and reduce padding to make tabs closer
 	local textBounds = TextService:GetTextSize(options.text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
-	SubTab.Size = UDim2.new(0, textBounds.X + 32, 1, 0)
+	SubTab.Size = UDim2.new(0, textBounds.X + 20, 1, 0) -- Reduced padding from 32 to 20
 
 	-- Calculate subTab position to position underline
 	local subTabIndex, subTabPosition = 0, 0
@@ -527,14 +527,15 @@ function Library:createSubTab(options: table)
 		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
 
 		if not disableUnderlineTween then
-			-- Fixed: Calculate the actual text width for the underline, not the full SubTab width
+			-- Calculate the exact text width for the underline
 			local actualTextBounds = TextService:GetTextSize(subTab.Text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
-			local underlineWidth = actualTextBounds.X + 16 -- Add some padding but less than the full 32
+			local underlineWidth = actualTextBounds.X -- Use exact text width, no padding
+			local centerOffset = (subTab.Size.X.Offset - actualTextBounds.X) / 2 -- Center the underline under text
 			
 			-- Style the underline with elegant design
 			Utility:tween(underline, {
 				BackgroundColor3 = Theme.PrimaryColor, 
-				Position = UDim2.new(0, subTabPosition + 8, 1, 0), -- Add 8px offset to center it
+				Position = UDim2.new(0, subTabPosition + centerOffset, 1, 0), -- Center under text
 				Size = UDim2.new(0, underlineWidth, 0, 2)
 			}, 0.2):Play()
 			
