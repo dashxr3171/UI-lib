@@ -485,46 +485,32 @@ function Library:createSubTab(options: table)
 	local TextService = game:GetService("TextService")
 	-- Use exact text width with minimal padding
 	local textBounds = TextService:GetTextSize(options.text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
-	SubTab.Size = UDim2.new(0, textBounds.X + 16, 1, 0) -- A bit more padding for better centering
+	SubTab.Size = UDim2.new(0, textBounds.X + 8, 1, 0) -- Very minimal padding
 
 	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
 		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
 
 		if not disableUnderlineTween then
-			-- Wait for layout to complete
-			game:GetService("RunService").Heartbeat:Wait()
+			-- Wait a frame for layout to complete
+			task.wait()
 			
 			-- Get exact text width
 			local actualTextBounds = TextService:GetTextSize(subTab.Text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
 			local underlineWidth = actualTextBounds.X
 			
-			-- Calculate position by iterating through all SubTabs in order
-			local cumulativePosition = 0
-			local foundTarget = false
+			-- Calculate position using AbsolutePosition (most reliable)
+			local subTabLeft = subTab.AbsolutePosition.X
+			local scrollingFrameLeft = ScrollingFrame.AbsolutePosition.X
+			local relativePosition = subTabLeft - scrollingFrameLeft
 			
-			for i, child in ipairs(ScrollingFrame:GetChildren()) do
-				if child:IsA("TextLabel") and child.Name == "SubTab" then
-					if child == subTab then
-						foundTarget = true
-						break
-					else
-						-- Add this tab's width plus padding
-						cumulativePosition = cumulativePosition + child.Size.X.Offset
-						if ScrollingFrame.UIListLayout and ScrollingFrame.UIListLayout.Padding then
-							cumulativePosition = cumulativePosition + ScrollingFrame.UIListLayout.Padding.Offset
-						end
-					end
-				end
-			end
+			-- Center the underline under the text
+			local textPadding = (subTab.AbsoluteSize.X - actualTextBounds.X) / 2
+			local finalPosition = relativePosition + textPadding - 2
 			
-			-- Calculate the center position for the underline
-			local tabCenterX = cumulativePosition + (subTab.Size.X.Offset / 2)
-			local underlineStartX = tabCenterX - (underlineWidth / 2)
-			
-			-- Apply the perfectly centered underline
+			-- Apply the underline
 			Utility:tween(underline, {
 				BackgroundColor3 = Theme.PrimaryColor, 
-				Position = UDim2.new(0, underlineStartX, 1, 0),
+				Position = UDim2.new(0, finalPosition, 1, 0),
 				Size = UDim2.new(0, underlineWidth, 0, 2)
 			}, 0.2):Play()
 			
