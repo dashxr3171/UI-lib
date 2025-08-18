@@ -522,13 +522,13 @@ function Library:createSubTab(options: table)
 
 	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
 
-	-- Enhanced SubTab styling to look like gradient buttons
+	-- Enhanced SubTab styling to look like bigger gradient buttons
 	local SubTab = Assets.Pages.SubTab:Clone()
 	SubTab.Visible = true
 	SubTab.Text = options.text
 	SubTab.TextColor3 = Color3.fromRGB(140, 140, 155) -- Dimmed by default
-	SubTab.Font = Enum.Font.Gotham
-	SubTab.TextSize = 12 -- Slightly smaller
+	SubTab.Font = Enum.Font.GothamBold -- Made bold for better visibility
+	SubTab.TextSize = 16 -- Increased from 12 to 16
 	SubTab.BackgroundTransparency = 0 -- Make it visible
 	SubTab.BackgroundColor3 = Color3.fromRGB(25, 30, 60) -- Dark background
 	SubTab.BorderSizePixel = 0
@@ -536,7 +536,7 @@ function Library:createSubTab(options: table)
 	
 	-- Add corner radius to make it look like a button
 	local SubTabCorner = Instance.new("UICorner")
-	SubTabCorner.CornerRadius = UDim.new(0, 4)
+	SubTabCorner.CornerRadius = UDim.new(0, 6) -- Increased from 4 to 6
 	SubTabCorner.Parent = SubTab
 	
 	-- Add border stroke
@@ -547,9 +547,9 @@ function Library:createSubTab(options: table)
 	SubTabStroke.Parent = SubTab
 
 	local TextService = game:GetService("TextService")
-	-- Use exact text width with padding for button look
-	local textBounds = TextService:GetTextSize(options.text, 12, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
-	SubTab.Size = UDim2.new(0, textBounds.X + 20, 0, 28) -- Button-like height
+	-- Use exact text width with more padding for bigger button look
+	local textBounds = TextService:GetTextSize(options.text, 16, Enum.Font.GothamBold, Vector2.new(math.huge, math.huge))
+	SubTab.Size = UDim2.new(0, textBounds.X + 32, 0, 36) -- Increased padding from 20 to 32, height from 28 to 36
 
 	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
 		-- Enhanced button-style animations
@@ -637,144 +637,6 @@ function Library:createSubTab(options: table)
 					TextColor3 = Color3.fromRGB(140, 140, 155)
 				}, 0.2):Play()
 			end
-		end, ExpectedType = "function"},
-	})
-
-	local Navigation = Modules.Navigation.new(Context)
-
-	if not self.firstSubTabDebounce then
-		Navigation:enableFirstTab()
-		self.firstSubTabDebounce = true
-	end
-
-	Left.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
-	Right.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
-
-	SubTab.MouseButton1Down:Connect(Navigation:selectTab())
-	SubTab.MouseEnter:Connect(Navigation:hoverEffect(true))
-	SubTab.MouseLeave:Connect(Navigation:hoverEffect(false))
-	
-	Theme:registerToObjects({
-		{object = Underline, property = "BackgroundColor3", theme = {"PrimaryColor"}},
-		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
-		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
-	}, "SubTab")
-
-    local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = options.sectionStyle}, Library)
-return PassingContext
-end
-
-function Library:createSubTab(options: table)
-	-- Use provided options, or fall back to defaults if not provided	
-	Utility:validateOptions(options, {
-		sectionStyle = {Default = "Double", ExpectedType = "string"},
-		text = {Default = "SubTab", ExpectedType = "string"},
-	})
-
-	local Moveable = self.Page.SubTabs.Frame.Moveable
-	local Underline, ScrollingFrame = Moveable.Underline, Moveable.Parent.ScrollingFrame
-
-	local SubPage = Assets.Pages.SubPage:Clone()
-	SubPage.Parent = self.Page
-	SubPage.Position = UDim2.new(0, 0, 0, 85) -- Move down to account for new header
-
-	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
-
-	local SubTab = Assets.Pages.SubTab:Clone()
-	SubTab.Visible = true
-	SubTab.Text = options.text
-	SubTab.TextColor3 = Theme.SecondaryTextColor
-	SubTab.Font = Enum.Font.Gotham
-	SubTab.TextSize = 14
-	SubTab.BackgroundTransparency = 1
-	SubTab.Parent = ScrollingFrame
-
-	local TextService = game:GetService("TextService")
-	-- Use exact text width with minimal padding
-	local textBounds = TextService:GetTextSize(options.text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
-	SubTab.Size = UDim2.new(0, textBounds.X + 8, 1, 0) -- Very minimal padding
-
-	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
-		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
-
-		if not disableUnderlineTween then
-			-- Wait a frame for layout to complete
-			task.wait()
-			
-			-- Get exact text width
-			local actualTextBounds = TextService:GetTextSize(subTab.Text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
-			local underlineWidth = actualTextBounds.X
-			
-			-- Calculate position using AbsolutePosition (most reliable)
-			local subTabLeft = subTab.AbsolutePosition.X
-			local scrollingFrameLeft = ScrollingFrame.AbsolutePosition.X
-			local relativePosition = subTabLeft - scrollingFrameLeft
-			
-			-- Center the underline under the text
-			local textPadding = (subTab.AbsoluteSize.X - actualTextBounds.X) / 2
-			local finalPosition = relativePosition + textPadding - 4
-			
-			-- Apply the underline
-			Utility:tween(underline, {
-				BackgroundColor3 = Theme.PrimaryColor, 
-				Position = UDim2.new(0, finalPosition, 1, 0),
-				Size = UDim2.new(0, underlineWidth, 0, 2)
-			}, 0.2):Play()
-			
-			-- Add gradient effect to underline if it doesn't exist
-			if not underline:FindFirstChild("UIGradient") then
-				local gradient = Instance.new("UIGradient")
-				gradient.Color = ColorSequence.new{
-					ColorSequenceKeypoint.new(0, Theme.PrimaryColor),
-					ColorSequenceKeypoint.new(1, Color3.new(Theme.PrimaryColor.R * 0.7, Theme.PrimaryColor.G * 0.7, Theme.PrimaryColor.B * 0.7))
-				}
-				gradient.Rotation = 90
-				gradient.Parent = underline
-			end
-			
-			-- Add rounded corners to underline
-			if not underline:FindFirstChild("UICorner") then
-				local corner = Instance.new("UICorner")
-				corner.CornerRadius = UDim.new(0, 1)
-				corner.Parent = underline
-			end
-		end
-	end
-
-	local function autoCanvasSizeSubPageScrollingFrame()
-		local max = math.max(Left.UIListLayout.AbsoluteContentSize.Y, Right.UIListLayout.AbsoluteContentSize.Y)
-		SubPage.ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, max)
-	end
-
-	local function updateSectionAnimation()
-		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 10)}, 0.2):Play()
-
-		task.delay(0.2, function()
-			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.2):Play()
-		end)
-	end
-
-	local Context = Utility:validateContext({
-		Page = {Value = SubPage, ExpectedType = "Instance"},
-		Pages = {Value = self.Page, ExpectedType = "Instance"},
-		Popups = {Value = Popups, ExpectedType = "Instance"},
-		ScrollingFrame = {Value = ScrollingFrame, ExpectedType = "Instance"},
-		animation = {Value = updateSectionAnimation, ExpectedType = "function"},
-
-		tweenTabOn = {Value = function()
-			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0, false)
-		end, ExpectedType = "function"},
-
-		tweenTabsOff = {Value = function(subTab)
-			tweenSubTabAssets(subTab, Underline, Theme.SecondaryTextColor, 0, true)
-		end, ExpectedType = "function"},
-
-		hoverOn = {Value = function()
-			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0.3, true)
-		end, ExpectedType = "function"},
-
-		hoverOff = {Value = function()
-			tweenSubTabAssets(SubTab, Underline, Theme.SecondaryTextColor, 0, true)
 		end, ExpectedType = "function"},
 	})
 
