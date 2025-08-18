@@ -318,65 +318,51 @@ function Library:createTab(options: table)
 	
 	local Frame = Page.Frame
 	
-	-- Add subtle gradient background to Frame
-	local BackgroundGradient = Instance.new("UIGradient")
-	BackgroundGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.new(Theme.PrimaryBackgroundColor.R * 1.05, Theme.PrimaryBackgroundColor.G * 1.05, Theme.PrimaryBackgroundColor.B * 1.05)),
-		ColorSequenceKeypoint.new(1, Theme.PrimaryBackgroundColor)
-	}
-	BackgroundGradient.Rotation = 135
-	BackgroundGradient.Parent = Frame
+	-- Remove the background gradient - keep it clean
+	Frame.BackgroundColor3 = Theme.PrimaryBackgroundColor
 	
 	local PageLine = Frame.Line
 
-	-- Style the CurrentTabLabel with elegant minimal design
+	-- Style the CurrentTabLabel with better positioning
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Theme.PrimaryTextColor
-	CurrentTabLabel.Font = Enum.Font.Gotham
-    CurrentTabLabel.TextSize = 24
+	CurrentTabLabel.Font = Enum.Font.GothamBold
+    CurrentTabLabel.TextSize = 20
 	CurrentTabLabel.BackgroundTransparency = 1
+	CurrentTabLabel.Position = UDim2.new(0, 16, 0, 8) -- Move to top-left
+	CurrentTabLabel.Size = UDim2.new(1, -32, 0, 30) -- Proper sizing
+	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 	
-	-- Add left accent bar to CurrentTabLabel
-	local AccentBar = Instance.new("Frame")
-	AccentBar.Name = "AccentBar"
-	AccentBar.Size = UDim2.new(0, 4, 0, 20)
-	AccentBar.Position = UDim2.new(0, -12, 0.5, -10)
-	AccentBar.BackgroundColor3 = Theme.PrimaryColor
-	AccentBar.BorderSizePixel = 0
-	AccentBar.Parent = CurrentTabLabel
+	-- Remove the old accent bar
+	if CurrentTabLabel:FindFirstChild("AccentBar") then
+		CurrentTabLabel.AccentBar:Destroy()
+	end
+	
+	-- Add small accent dot to the left of text
+	local AccentDot = Instance.new("Frame")
+	AccentDot.Name = "AccentDot"
+	AccentDot.Size = UDim2.new(0, 6, 0, 6)
+	AccentDot.Position = UDim2.new(0, -12, 0.5, -3)
+	AccentDot.BackgroundColor3 = Theme.PrimaryColor
+	AccentDot.BorderSizePixel = 0
+	AccentDot.Parent = CurrentTabLabel
 
-	-- Add rounded corners to accent bar
-	local AccentCorner = Instance.new("UICorner")
-	AccentCorner.CornerRadius = UDim.new(0, 2)
-	AccentCorner.Parent = AccentBar
-
-	-- Add gradient to accent bar
-	local AccentGradient = Instance.new("UIGradient")
-	AccentGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Theme.PrimaryColor),
-		ColorSequenceKeypoint.new(1, Color3.new(Theme.PrimaryColor.R * 0.8, Theme.PrimaryColor.G * 0.8, Theme.PrimaryColor.B * 0.8))
-	}
-	AccentGradient.Rotation = 135
-	AccentGradient.Parent = AccentBar
+	-- Make it circular
+	local DotCorner = Instance.new("UICorner")
+	DotCorner.CornerRadius = UDim.new(0.5, 0)
+	DotCorner.Parent = AccentDot
 
 	local SubTabs = Page.SubTabs
+	SubTabs.Position = UDim2.new(0, 0, 0, 45) -- Move down to make room for header
+	SubTabs.Size = UDim2.new(1, 0, 0, 40) -- Fixed height
 	
 	-- Style the SubLine to be more elegant
 	local SubLine = SubTabs.Line
-	SubLine.Size = UDim2.new(1, -48, 0, 1)
-	SubLine.Position = UDim2.new(0, 24, 1, -1)
+	SubLine.Size = UDim2.new(1, -32, 0, 1)
+	SubLine.Position = UDim2.new(0, 16, 1, -1)
 	SubLine.BackgroundColor3 = Theme.Line
-	SubLine.BackgroundTransparency = 0.6
-	
-	-- Add gradient to the sub line
-	local SubLineGradient = Instance.new("UIGradient")
-	SubLineGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Color3.new(0, 0, 0, 0)),
-		ColorSequenceKeypoint.new(0.5, Theme.Line),
-		ColorSequenceKeypoint.new(1, Color3.new(0, 0, 0, 0))
-	}
-	SubLineGradient.Parent = SubLine
+	SubLine.BackgroundTransparency = 0.4
 
 	local function tweenTabAssets(tab: Instance, icon: Instance, textButton: Instance, color: textColor3, backgroundColor3: Color3, backgroundTransparency: number, textTransparency: number, imageTransparency: number)
 		Utility:tween(tab, {BackgroundColor3 = backgroundColor3, BackgroundTransparency = backgroundTransparency}, 0.5):Play()
@@ -387,7 +373,6 @@ function Library:createTab(options: table)
 	local function fadeAnimation()
 		local function tweenFadeAndPage(fade: Instance, backgroundTransparency: number, textTransparency: number, paddingY: number)
 			Utility:tween(fade, {BackgroundTransparency = backgroundTransparency}, 0.2):Play()
-			Utility:tween(CurrentTabLabel.UIPadding, {PaddingBottom = UDim.new(0, paddingY)}, 0.2):Play()
 		end
 
 		for _, subPage in ipairs(Page:GetChildren()) do
@@ -465,7 +450,7 @@ function Library:createTab(options: table)
 		{object = PageLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = SubLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = CurrentTabLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
-		{object = AccentBar, property = "BackgroundColor3", theme = {"PrimaryColor"}},
+		{object = AccentDot, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 	}, "Tab")
 
 	local PassingContext = setmetatable({Page = Page}, Library)
@@ -484,6 +469,7 @@ function Library:createSubTab(options: table)
 
 	local SubPage = Assets.Pages.SubPage:Clone()
 	SubPage.Parent = self.Page
+	SubPage.Position = UDim2.new(0, 0, 0, 85) -- Move down to account for new header
 
 	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
 
@@ -497,43 +483,34 @@ function Library:createSubTab(options: table)
 	SubTab.Parent = ScrollingFrame
 
 	local TextService = game:GetService("TextService")
-	-- Fixed: Use the correct text size (14) and reduce padding to make tabs much closer
+	-- Use exact text width with minimal padding
 	local textBounds = TextService:GetTextSize(options.text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
-	SubTab.Size = UDim2.new(0, textBounds.X + 12, 1, 0) -- Reduced padding from 20 to 12 for closer spacing
+	SubTab.Size = UDim2.new(0, textBounds.X + 8, 1, 0) -- Very minimal padding
 
 	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
 		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
 
 		if not disableUnderlineTween then
-			-- Wait for the next frame to ensure UIListLayout has positioned everything
-			game:GetService("RunService").Heartbeat:Wait()
+			-- Wait a frame for layout to complete
+			task.wait()
 			
-			-- Get the exact text width for the underline
+			-- Get exact text width
 			local actualTextBounds = TextService:GetTextSize(subTab.Text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
-			local underlineWidth = actualTextBounds.X -- Use exact text width
+			local underlineWidth = actualTextBounds.X
 			
-			-- Calculate position by finding this SubTab's position in the list
-			local subTabPosition = 0
-			local padding = ScrollingFrame.UIListLayout.Padding.Offset or 0
+			-- Calculate position using AbsolutePosition (most reliable)
+			local subTabLeft = subTab.AbsolutePosition.X
+			local scrollingFrameLeft = ScrollingFrame.AbsolutePosition.X
+			local relativePosition = subTabLeft - scrollingFrameLeft
 			
-			for i, child in ipairs(ScrollingFrame:GetChildren()) do
-				if child:IsA("TextLabel") and child.Name == "SubTab" then
-					if child == subTab then
-						break -- Found our SubTab, stop calculating
-					else
-						subTabPosition = subTabPosition + child.Size.X.Offset + padding
-					end
-				end
-			end
+			-- Center the underline under the text
+			local textPadding = (subTab.AbsoluteSize.X - actualTextBounds.X) / 2
+			local finalPosition = relativePosition + textPadding
 			
-			-- Calculate the offset to center the underline under the text
-			local textCenterOffset = (subTab.Size.X.Offset - actualTextBounds.X) / 2
-			local finalPosition = subTabPosition + textCenterOffset
-			
-			-- Style the underline with elegant design
+			-- Apply the underline
 			Utility:tween(underline, {
 				BackgroundColor3 = Theme.PrimaryColor, 
-				Position = UDim2.new(0, finalPosition, 1, 0), -- Perfect centering
+				Position = UDim2.new(0, finalPosition, 1, 0),
 				Size = UDim2.new(0, underlineWidth, 0, 2)
 			}, 0.2):Play()
 			
