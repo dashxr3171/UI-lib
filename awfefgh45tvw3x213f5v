@@ -319,7 +319,7 @@ function Library:createTab(options: table)
 		local SectionSeparator = Instance.new("Frame")
 		SectionSeparator.Name = "SectionSeparator"
 		SectionSeparator.Size = UDim2.new(1, -16, 0, 1) -- Longer line - only 16px total padding
-		SectionSeparator.Position = UDim2.new(0, 8, 1, 15) -- Moved down more and centered
+		SectionSeparator.Position = UDim2.new(0, 8, 1, 25) -- Moved down even more (was 15, now 25)
 		SectionSeparator.BackgroundColor3 = Theme.Line
 		SectionSeparator.BackgroundTransparency = 0.4
 		SectionSeparator.BorderSizePixel = 0
