@@ -323,45 +323,38 @@ function Library:createTab(options: table)
 	
 	local PageLine = Frame.Line
 
-	-- Style the CurrentTabLabel with center-right positioning
+	-- Style the CurrentTabLabel with better positioning
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Theme.PrimaryTextColor
 	CurrentTabLabel.Font = Enum.Font.GothamBold
-    CurrentTabLabel.TextSize = 26 -- Bigger text
+    CurrentTabLabel.TextSize = 20
 	CurrentTabLabel.BackgroundTransparency = 1
-	CurrentTabLabel.Position = UDim2.new(0.5, -100, 0, 16) -- Center-right positioning
-	CurrentTabLabel.Size = UDim2.new(0, 200, 0, 40) -- Fixed width for better control
-	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Center -- Center within the frame
+	CurrentTabLabel.Position = UDim2.new(0, 16, 0, 8) -- Move to top-left
+	CurrentTabLabel.Size = UDim2.new(1, -32, 0, 30) -- Proper sizing
+	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 	
 	-- Remove the old accent bar
 	if CurrentTabLabel:FindFirstChild("AccentBar") then
 		CurrentTabLabel.AccentBar:Destroy()
 	end
 	
-	-- Add cool accent line to the right of text
-	local AccentLine = Instance.new("Frame")
-	AccentLine.Name = "AccentLine"
-	AccentLine.Size = UDim2.new(0, 30, 0, 3)
-	AccentLine.Position = UDim2.new(1, 8, 0.5, -1.5) -- To the right of text
-	AccentLine.BackgroundColor3 = Theme.PrimaryColor
-	AccentLine.BorderSizePixel = 0
-	AccentLine.Parent = CurrentTabLabel
+	-- Add small accent dot to the left of text
+	local AccentDot = Instance.new("Frame")
+	AccentDot.Name = "AccentDot"
+	AccentDot.Size = UDim2.new(0, 6, 0, 6)
+	AccentDot.Position = UDim2.new(0, -12, 0.5, -3)
+	AccentDot.BackgroundColor3 = Theme.PrimaryColor
+	AccentDot.BorderSizePixel = 0
+	AccentDot.Parent = CurrentTabLabel
 
-	-- Add rounded corners and gradient to accent line
-	local LineCorner = Instance.new("UICorner")
-	LineCorner.CornerRadius = UDim.new(0, 1.5)
-	LineCorner.Parent = AccentLine
-	
-	local LineGradient = Instance.new("UIGradient")
-	LineGradient.Color = ColorSequence.new{
-		ColorSequenceKeypoint.new(0, Theme.PrimaryColor),
-		ColorSequenceKeypoint.new(1, Color3.new(Theme.PrimaryColor.R * 0.3, Theme.PrimaryColor.G * 0.3, Theme.PrimaryColor.B * 0.3))
-	}
-	LineGradient.Parent = AccentLine
+	-- Make it circular
+	local DotCorner = Instance.new("UICorner")
+	DotCorner.CornerRadius = UDim.new(0.5, 0)
+	DotCorner.Parent = AccentDot
 
 	local SubTabs = Page.SubTabs
-	SubTabs.Position = UDim2.new(0, 0, 0, 60) -- Move down for bigger header
+	SubTabs.Position = UDim2.new(0, 0, 0, 45) -- Move down to make room for header
 	SubTabs.Size = UDim2.new(1, 0, 0, 40) -- Fixed height
 	
 	-- Style the SubLine to be more elegant
@@ -435,7 +428,7 @@ function Library:createTab(options: table)
 	-- this is stupid but anyways!!!
 	if not self.firstTabDebounce then
 		Navigation:enableFirstTab()
-		self.firstSubTabDebounce = true
+		self.firstTabDebounce = true
 	end
 
 	ScrollingFrame.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -457,7 +450,7 @@ function Library:createTab(options: table)
 		{object = PageLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = SubLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = CurrentTabLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
-		{object = AccentLine, property = "BackgroundColor3", theme = {"PrimaryColor"}},
+		{object = AccentDot, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 	}, "Tab")
 
 	local PassingContext = setmetatable({Page = Page}, Library)
