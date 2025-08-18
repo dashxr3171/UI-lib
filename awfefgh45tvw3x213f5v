@@ -287,15 +287,7 @@ function Library:createLabel(options: table)
     })
 end
 
-local ImageButton = Tab.ImageButton
-
-	local Icon = ImageButton.Icon
-	Icon.Image = "rbxassetid://" .. options.icon
-
-	local TextButton = ImageButton.TextButton
-	TextButton.Text = options.text
-	TextButton.Font = Enum.Font.Gotham
-    TextButton.TextSize = 14function Library:createTab(options: table)
+function Library:createTab(options: table)
 	Utility:validateOptions(options, {
 		text = {Default = "Tab", ExpectedType = "string"},
 		icon = {Default = "124718082122263", ExpectedType = "string"},
@@ -336,6 +328,16 @@ local ImageButton = Tab.ImageButton
 			{object = SectionSeparator, property = "BackgroundColor3", theme = {"Line"}},
 		}, "SectionSeparator")
 	end
+
+	local ImageButton = Tab.ImageButton
+
+	local Icon = ImageButton.Icon
+	Icon.Image = "rbxassetid://" .. options.icon
+
+	local TextButton = ImageButton.TextButton
+	TextButton.Text = options.text
+	TextButton.Font = Enum.Font.Gotham
+    TextButton.TextSize = 14
 
 	local Page = Assets.Pages.Page:Clone()
 	Page.Parent = Background.Pages
