@@ -522,73 +522,51 @@ function Library:createSubTab(options: table)
 
 	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
 
-	-- Enhanced SubTab styling to look like bigger gradient buttons
+	-- Enhanced SubTab styling with theme colors and smaller size
 	local SubTab = Assets.Pages.SubTab:Clone()
 	SubTab.Visible = true
 	SubTab.Text = options.text
-	SubTab.TextColor3 = Color3.fromRGB(140, 140, 155) -- Dimmed by default
-	SubTab.Font = Enum.Font.GothamBold -- Made bold for better visibility
-	SubTab.TextSize = 16 -- Increased from 12 to 16
+	SubTab.TextColor3 = Theme.SecondaryTextColor -- Use theme color
+	SubTab.Font = Enum.Font.Gotham -- Regular weight
+	SubTab.TextSize = 13 -- Smaller text
 	SubTab.BackgroundTransparency = 0 -- Make it visible
-	SubTab.BackgroundColor3 = Color3.fromRGB(25, 30, 60) -- Dark background
+	SubTab.BackgroundColor3 = Theme.SecondaryBackgroundColor -- Use theme background
 	SubTab.BorderSizePixel = 0
+	SubTab.TextXAlignment = Enum.TextXAlignment.Center -- Center the text
+	SubTab.TextYAlignment = Enum.TextYAlignment.Center -- Center the text vertically
 	SubTab.Parent = ScrollingFrame
 	
 	-- Add corner radius to make it look like a button
 	local SubTabCorner = Instance.new("UICorner")
-	SubTabCorner.CornerRadius = UDim.new(0, 6) -- Increased from 4 to 6
+	SubTabCorner.CornerRadius = UDim.new(0, 4) -- Smaller corner radius
 	SubTabCorner.Parent = SubTab
 	
-	-- Add border stroke
+	-- Add border stroke using theme colors
 	local SubTabStroke = Instance.new("UIStroke")
-	SubTabStroke.Color = Color3.fromRGB(60, 70, 100)
-	SubTabStroke.Transparency = 0.8
+	SubTabStroke.Color = Theme.Line -- Use theme line color
+	SubTabStroke.Transparency = 0.7
 	SubTabStroke.Thickness = 1
 	SubTabStroke.Parent = SubTab
 
 	local TextService = game:GetService("TextService")
-	-- Use exact text width with more padding for bigger button look
-	local textBounds = TextService:GetTextSize(options.text, 16, Enum.Font.GothamBold, Vector2.new(math.huge, math.huge))
-	SubTab.Size = UDim2.new(0, textBounds.X + 32, 0, 36) -- Increased padding from 20 to 32, height from 28 to 36
+	-- Smaller button with less padding
+	local textBounds = TextService:GetTextSize(options.text, 13, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
+	SubTab.Size = UDim2.new(0, textBounds.X + 24, 0, 28) -- Reduced padding and height to prevent clipping
 
 	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
 		-- Enhanced button-style animations
 		if not disableUnderlineTween then
-			-- Active state - gradient button style
-			local activeGradient = Instance.new("UIGradient")
-			activeGradient.Color = ColorSequence.new{
-				ColorSequenceKeypoint.new(0, Color3.fromRGB(90, 135, 255)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(124, 58, 237))
-			}
-			activeGradient.Rotation = 135
-			activeGradient.Parent = subTab
-			
+			-- Active state - using theme colors
 			Utility:tween(subTab, {
-				BackgroundColor3 = Color3.fromRGB(90, 135, 255),
-				TextColor3 = Color3.fromRGB(255, 255, 255)
+				BackgroundColor3 = Theme.PrimaryColor,
+				TextColor3 = Theme.PrimaryTextColor
 			}, 0.2):Play()
 			
-			-- Add glow effect
-			if not subTab:FindFirstChild("UIStroke") then
-				local glowStroke = Instance.new("UIStroke")
-				glowStroke.Color = Color3.fromRGB(90, 135, 255)
-				glowStroke.Transparency = 0.5
-				glowStroke.Thickness = 2
-				glowStroke.Parent = subTab
-			end
-			
 		else
-			-- Inactive state - remove gradient and glow
-			if subTab:FindFirstChild("UIGradient") then
-				subTab.UIGradient:Destroy()
-			end
-			if subTab:FindFirstChild("UIStroke") then
-				subTab.UIStroke:Destroy()
-			end
-			
+			-- Inactive state - using theme colors
 			Utility:tween(subTab, {
-				BackgroundColor3 = Color3.fromRGB(25, 30, 60),
-				TextColor3 = Color3.fromRGB(140, 140, 155)
+				BackgroundColor3 = Theme.SecondaryBackgroundColor,
+				TextColor3 = Theme.SecondaryTextColor
 			}, 0.2):Play()
 		end
 	end
@@ -622,19 +600,19 @@ function Library:createSubTab(options: table)
 		end, ExpectedType = "function"},
 
 		hoverOn = {Value = function()
-			if not SubTab:FindFirstChild("UIGradient") then -- Only hover if not active
+			if SubTab.BackgroundColor3 ~= Theme.PrimaryColor then -- Only hover if not active
 				Utility:tween(SubTab, {
-					BackgroundColor3 = Color3.fromRGB(40, 50, 80),
-					TextColor3 = Color3.fromRGB(180, 180, 200)
+					BackgroundColor3 = Theme.TertiaryBackgroundColor,
+					TextColor3 = Theme.PrimaryTextColor
 				}, 0.2):Play()
 			end
 		end, ExpectedType = "function"},
 
 		hoverOff = {Value = function()
-			if not SubTab:FindFirstChild("UIGradient") then -- Only unhover if not active
+			if SubTab.BackgroundColor3 ~= Theme.PrimaryColor then -- Only unhover if not active
 				Utility:tween(SubTab, {
-					BackgroundColor3 = Color3.fromRGB(25, 30, 60),
-					TextColor3 = Color3.fromRGB(140, 140, 155)
+					BackgroundColor3 = Theme.SecondaryBackgroundColor,
+					TextColor3 = Theme.SecondaryTextColor
 				}, 0.2):Play()
 			end
 		end, ExpectedType = "function"},
