@@ -323,38 +323,45 @@ function Library:createTab(options: table)
 	
 	local PageLine = Frame.Line
 
-	-- Style the CurrentTabLabel with centered positioning and bigger size
+	-- Style the CurrentTabLabel with center-right positioning
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Theme.PrimaryTextColor
 	CurrentTabLabel.Font = Enum.Font.GothamBold
     CurrentTabLabel.TextSize = 26 -- Bigger text
 	CurrentTabLabel.BackgroundTransparency = 1
-	CurrentTabLabel.Position = UDim2.new(0, 20, 0, 16) -- Centered with more top padding
-	CurrentTabLabel.Size = UDim2.new(1, -40, 0, 40) -- Bigger height
-	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Center -- Center the text
+	CurrentTabLabel.Position = UDim2.new(0.5, -100, 0, 16) -- Center-right positioning
+	CurrentTabLabel.Size = UDim2.new(0, 200, 0, 40) -- Fixed width for better control
+	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Center -- Center within the frame
 	
 	-- Remove the old accent bar
 	if CurrentTabLabel:FindFirstChild("AccentBar") then
 		CurrentTabLabel.AccentBar:Destroy()
 	end
 	
-	-- Add small accent dot to the left of centered text
-	local AccentDot = Instance.new("Frame")
-	AccentDot.Name = "AccentDot"
-	AccentDot.Size = UDim2.new(0, 6, 0, 6)
-	AccentDot.Position = UDim2.new(0, -18, 0.5, -3) -- Further left to account for centered text
-	AccentDot.BackgroundColor3 = Theme.PrimaryColor
-	AccentDot.BorderSizePixel = 0
-	AccentDot.Parent = CurrentTabLabel
+	-- Add cool accent line to the right of text
+	local AccentLine = Instance.new("Frame")
+	AccentLine.Name = "AccentLine"
+	AccentLine.Size = UDim2.new(0, 30, 0, 3)
+	AccentLine.Position = UDim2.new(1, 8, 0.5, -1.5) -- To the right of text
+	AccentLine.BackgroundColor3 = Theme.PrimaryColor
+	AccentLine.BorderSizePixel = 0
+	AccentLine.Parent = CurrentTabLabel
 
-	-- Make it circular
-	local DotCorner = Instance.new("UICorner")
-	DotCorner.CornerRadius = UDim.new(0.5, 0)
-	DotCorner.Parent = AccentDot
+	-- Add rounded corners and gradient to accent line
+	local LineCorner = Instance.new("UICorner")
+	LineCorner.CornerRadius = UDim.new(0, 1.5)
+	LineCorner.Parent = AccentLine
+	
+	local LineGradient = Instance.new("UIGradient")
+	LineGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Theme.PrimaryColor),
+		ColorSequenceKeypoint.new(1, Color3.new(Theme.PrimaryColor.R * 0.3, Theme.PrimaryColor.G * 0.3, Theme.PrimaryColor.B * 0.3))
+	}
+	LineGradient.Parent = AccentLine
 
 	local SubTabs = Page.SubTabs
-	SubTabs.Position = UDim2.new(0, 0, 0, 60) -- Move down more to make room for bigger header
+	SubTabs.Position = UDim2.new(0, 0, 0, 60) -- Move down for bigger header
 	SubTabs.Size = UDim2.new(1, 0, 0, 40) -- Fixed height
 	
 	-- Style the SubLine to be more elegant
@@ -428,7 +435,7 @@ function Library:createTab(options: table)
 	-- this is stupid but anyways!!!
 	if not self.firstTabDebounce then
 		Navigation:enableFirstTab()
-		self.firstTabDebounce = true
+		self.firstSubTabDebounce = true
 	end
 
 	ScrollingFrame.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
@@ -450,13 +457,160 @@ function Library:createTab(options: table)
 		{object = PageLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = SubLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = CurrentTabLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
-		{object = AccentDot, property = "BackgroundColor3", theme = {"PrimaryColor"}},
+		{object = AccentLine, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 	}, "Tab")
 
 	local PassingContext = setmetatable({Page = Page}, Library)
 	return PassingContext
 end
 
+function Library:createSubTab(options: table)
+	-- Use provided options, or fall back to defaults if not provided	
+	Utility:validateOptions(options, {
+		sectionStyle = {Default = "Double", ExpectedType = "string"},
+		text = {Default = "SubTab", ExpectedType = "string"},
+	})
+
+	local Moveable = self.Page.SubTabs.Frame.Moveable
+	local Underline, ScrollingFrame = Moveable.Underline, Moveable.Parent.ScrollingFrame
+
+	local SubPage = Assets.Pages.SubPage:Clone()
+	SubPage.Parent = self.Page
+	SubPage.Position = UDim2.new(0, 0, 0, 100) -- Move down for bigger header
+
+	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
+
+	local SubTab = Assets.Pages.SubTab:Clone()
+	SubTab.Visible = true
+	SubTab.Text = options.text
+	SubTab.TextColor3 = Theme.SecondaryTextColor
+	SubTab.Font = Enum.Font.Gotham
+	SubTab.TextSize = 14
+	SubTab.BackgroundTransparency = 1
+	SubTab.Parent = ScrollingFrame
+
+	local TextService = game:GetService("TextService")
+	-- Use exact text width with minimal padding
+	local textBounds = TextService:GetTextSize(options.text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
+	SubTab.Size = UDim2.new(0, textBounds.X + 16, 1, 0) -- Slightly more padding for better positioning
+
+	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
+		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
+
+		if not disableUnderlineTween then
+			-- Wait for next frame to ensure positioning is complete
+			game:GetService("RunService").Heartbeat:Wait()
+			
+			-- Get exact text width
+			local actualTextBounds = TextService:GetTextSize(subTab.Text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
+			local underlineWidth = actualTextBounds.X
+			
+			-- Calculate exact position using relative offset method
+			local totalPosition = 0
+			local targetSubTab = subTab
+			
+			-- Calculate position by iterating through ScrollingFrame children
+			for i, child in ipairs(ScrollingFrame:GetChildren()) do
+				if child:IsA("TextLabel") and child.Name == "SubTab" then
+					if child == targetSubTab then
+						break -- Found our target, stop counting
+					else
+						totalPosition = totalPosition + child.Size.X.Offset + (ScrollingFrame.UIListLayout.Padding.Offset or 0)
+					end
+				end
+			end
+			
+			-- Calculate center offset for this specific tab
+			local tabCenterOffset = (subTab.Size.X.Offset - actualTextBounds.X) / 2
+			local finalPosition = totalPosition + tabCenterOffset
+			
+			-- Apply the perfectly positioned underline
+			Utility:tween(underline, {
+				BackgroundColor3 = Theme.PrimaryColor, 
+				Position = UDim2.new(0, finalPosition, 1, 0),
+				Size = UDim2.new(0, underlineWidth, 0, 2)
+			}, 0.2):Play()
+			
+			-- Add gradient effect to underline if it doesn't exist
+			if not underline:FindFirstChild("UIGradient") then
+				local gradient = Instance.new("UIGradient")
+				gradient.Color = ColorSequence.new{
+					ColorSequenceKeypoint.new(0, Theme.PrimaryColor),
+					ColorSequenceKeypoint.new(1, Color3.new(Theme.PrimaryColor.R * 0.7, Theme.PrimaryColor.G * 0.7, Theme.PrimaryColor.B * 0.7))
+				}
+				gradient.Rotation = 90
+				gradient.Parent = underline
+			end
+			
+			-- Add rounded corners to underline
+			if not underline:FindFirstChild("UICorner") then
+				local corner = Instance.new("UICorner")
+				corner.CornerRadius = UDim.new(0, 1)
+				corner.Parent = underline
+			end
+		end
+	end
+
+	local function autoCanvasSizeSubPageScrollingFrame()
+		local max = math.max(Left.UIListLayout.AbsoluteContentSize.Y, Right.UIListLayout.AbsoluteContentSize.Y)
+		SubPage.ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, max)
+	end
+
+	local function updateSectionAnimation()
+		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 10)}, 0.2):Play()
+
+		task.delay(0.2, function()
+			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.2):Play()
+		end)
+	end
+
+	local Context = Utility:validateContext({
+		Page = {Value = SubPage, ExpectedType = "Instance"},
+		Pages = {Value = self.Page, ExpectedType = "Instance"},
+		Popups = {Value = Popups, ExpectedType = "Instance"},
+		ScrollingFrame = {Value = ScrollingFrame, ExpectedType = "Instance"},
+		animation = {Value = updateSectionAnimation, ExpectedType = "function"},
+
+		tweenTabOn = {Value = function()
+			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0, false)
+		end, ExpectedType = "function"},
+
+		tweenTabsOff = {Value = function(subTab)
+			tweenSubTabAssets(subTab, Underline, Theme.SecondaryTextColor, 0, true)
+		end, ExpectedType = "function"},
+
+		hoverOn = {Value = function()
+			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0.3, true)
+		end, ExpectedType = "function"},
+
+		hoverOff = {Value = function()
+			tweenSubTabAssets(SubTab, Underline, Theme.SecondaryTextColor, 0, true)
+		end, ExpectedType = "function"},
+	})
+
+	local Navigation = Modules.Navigation.new(Context)
+
+	if not self.firstSubTabDebounce then
+		Navigation:enableFirstTab()
+		self.firstSubTabDebounce = true
+	end
+
+	Left.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
+	Right.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
+
+	SubTab.MouseButton1Down:Connect(Navigation:selectTab())
+	SubTab.MouseEnter:Connect(Navigation:hoverEffect(true))
+	SubTab.MouseLeave:Connect(Navigation:hoverEffect(false))
+	
+	Theme:registerToObjects({
+		{object = Underline, property = "BackgroundColor3", theme = {"PrimaryColor"}},
+		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
+		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
+	}, "SubTab")
+
+    local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = options.sectionStyle}, Library)
+return PassingContext
+end
 function Library:createSubTab(options: table)
 	-- Use provided options, or fall back to defaults if not provided	
 	Utility:validateOptions(options, {
