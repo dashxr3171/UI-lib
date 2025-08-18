@@ -330,7 +330,7 @@ function Library:createTab(options: table)
 	CurrentTabLabel.Font = Enum.Font.GothamBold
     CurrentTabLabel.TextSize = 20
 	CurrentTabLabel.BackgroundTransparency = 1
-	CurrentTabLabel.Position = UDim2.new(0, 16, 0, -7) -- Move to top-left
+	CurrentTabLabel.Position = UDim2.new(0, 16, 0, -20) -- Move to top-left
 	CurrentTabLabel.Size = UDim2.new(1, -32, 0, 30) -- Proper sizing
 	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 	
