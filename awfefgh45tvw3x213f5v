@@ -287,8 +287,6 @@ function Library:createLabel(options: table)
     })
 end
 
--- Modified createTab function with Version 4 Gaming Style header
--- Modified createTab function with moved elements and adjusted layout
 function Library:createTab(options: table)
 	Utility:validateOptions(options, {
 		text = {Default = "Tab", ExpectedType = "string"},
@@ -333,11 +331,11 @@ function Library:createTab(options: table)
 	UIGradient.Rotation = 135
 	UIGradient.Parent = Frame
 	
-	-- Add top accent line (moved much higher above the frame)
+	-- Add top accent line (moved even higher above the frame)
 	local TopAccentLine = Instance.new("Frame")
 	TopAccentLine.Name = "TopAccentLine"
 	TopAccentLine.Size = UDim2.new(1, 0, 0, 2) -- Made slightly thicker
-	TopAccentLine.Position = UDim2.new(0, 0, 0, -12) -- Moved much further up above the frame
+	TopAccentLine.Position = UDim2.new(0, 0, 0, -20) -- Moved even further up above the frame
 	TopAccentLine.BorderSizePixel = 0
 	TopAccentLine.Parent = Frame
 	
@@ -357,14 +355,14 @@ function Library:createTab(options: table)
 		PageLine.Visible = false -- Hide the divider line
 	end
 
-	-- Enhanced CurrentTabLabel styling - moved much higher up and made bigger
+	-- Enhanced CurrentTabLabel styling - moved even higher up and made bigger
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
 	CurrentTabLabel.Font = Enum.Font.GothamBold
     CurrentTabLabel.TextSize = 24 -- Made bigger (was 18)
 	CurrentTabLabel.BackgroundTransparency = 1
-	CurrentTabLabel.Position = UDim2.new(0, 20, 0, 2) -- Moved way up (was 8)
+	CurrentTabLabel.Position = UDim2.new(0, 20, 0, -3) -- Moved even higher up (was 2)
 	CurrentTabLabel.Size = UDim2.new(1, -40, 0, 32) -- Made taller for bigger text
 	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 	
