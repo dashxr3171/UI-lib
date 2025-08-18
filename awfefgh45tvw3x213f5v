@@ -505,23 +505,35 @@ function Library:createSubTab(options: table)
 		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
 
 		if not disableUnderlineTween then
+			-- Wait for the next frame to ensure UIListLayout has positioned everything
+			game:GetService("RunService").Heartbeat:Wait()
+			
 			-- Get the exact text width for the underline
 			local actualTextBounds = TextService:GetTextSize(subTab.Text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
 			local underlineWidth = actualTextBounds.X -- Use exact text width
 			
-			-- Use the SubTab's actual AbsolutePosition to calculate where the underline should be
-			local subTabAbsoluteX = subTab.AbsolutePosition.X
-			local scrollingFrameAbsoluteX = ScrollingFrame.AbsolutePosition.X
-			local relativePosition = subTabAbsoluteX - scrollingFrameAbsoluteX
+			-- Calculate position by finding this SubTab's position in the list
+			local subTabPosition = 0
+			local padding = ScrollingFrame.UIListLayout.Padding.Offset or 0
+			
+			for i, child in ipairs(ScrollingFrame:GetChildren()) do
+				if child:IsA("TextLabel") and child.Name == "SubTab" then
+					if child == subTab then
+						break -- Found our SubTab, stop calculating
+					else
+						subTabPosition = subTabPosition + child.Size.X.Offset + padding
+					end
+				end
+			end
 			
 			-- Calculate the offset to center the underline under the text
-			local textCenterOffset = (subTab.AbsoluteSize.X - actualTextBounds.X) / 2
-			local finalPosition = relativePosition + textCenterOffset
+			local textCenterOffset = (subTab.Size.X.Offset - actualTextBounds.X) / 2
+			local finalPosition = subTabPosition + textCenterOffset
 			
 			-- Style the underline with elegant design
 			Utility:tween(underline, {
 				BackgroundColor3 = Theme.PrimaryColor, 
-				Position = UDim2.new(0, finalPosition, 1, 0), -- Perfect centering using AbsolutePosition
+				Position = UDim2.new(0, finalPosition, 1, 0), -- Perfect centering
 				Size = UDim2.new(0, underlineWidth, 0, 2)
 			}, 0.2):Play()
 			
