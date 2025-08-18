@@ -320,9 +320,9 @@ function Library:createTab(options: table)
 	
 	local Frame = Page.Frame
 	
-	-- Enhanced Gaming Style Background - smaller height
+	-- Enhanced Gaming Style Background - MUCH smaller height (15% of original)
 	Frame.BackgroundColor3 = Color3.fromRGB(15, 20, 45)
-	Frame.Size = UDim2.new(1, 0, 1, -20) -- Made background smaller
+	Frame.Size = UDim2.new(1, 0, 0.15, 0) -- Dramatically reduced to 15% height
 	
 	-- Add gradient background to Frame
 	local UIGradient = Instance.new("UIGradient")
