@@ -320,9 +320,9 @@ function Library:createTab(options: table)
 	
 	local Frame = Page.Frame
 	
-	-- Enhanced Gaming Style Background - MUCH smaller height (15% of original)
+	-- Enhanced Gaming Style Background - MUCH smaller height (10% of original)
 	Frame.BackgroundColor3 = Color3.fromRGB(15, 20, 45)
-	Frame.Size = UDim2.new(1, 0, 0.15, 0) -- Dramatically reduced to 15% height
+	Frame.Size = UDim2.new(1, 0, 0.1, 0) -- Dramatically reduced to 10% height
 	
 	-- Add gradient background to Frame
 	local UIGradient = Instance.new("UIGradient")
@@ -333,11 +333,11 @@ function Library:createTab(options: table)
 	UIGradient.Rotation = 135
 	UIGradient.Parent = Frame
 	
-	-- Add top accent line (moved to very top edge)
+	-- Add top accent line (moved higher above the frame)
 	local TopAccentLine = Instance.new("Frame")
 	TopAccentLine.Name = "TopAccentLine"
 	TopAccentLine.Size = UDim2.new(1, 0, 0, 2) -- Made slightly thicker
-	TopAccentLine.Position = UDim2.new(0, 0, 0, -1) -- Moved above the frame
+	TopAccentLine.Position = UDim2.new(0, 0, 0, -5) -- Moved further up above the frame
 	TopAccentLine.BorderSizePixel = 0
 	TopAccentLine.Parent = Frame
 	
