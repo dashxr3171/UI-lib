@@ -510,7 +510,7 @@ function Library:createSubTab(options: table)
 			-- Apply the underline
 			Utility:tween(underline, {
 				BackgroundColor3 = Theme.PrimaryColor, 
-				Position = UDim2.new(0, finalPosition, 1, 0),
+				Position = UDim2.new(0, finalPosition, 0, 0),
 				Size = UDim2.new(0, underlineWidth, 0, 2)
 			}, 0.2):Play()
 			
