@@ -288,15 +288,16 @@ function Library:createLabel(options: table)
 end
 
 -- Modified createTab function with Version 4 Gaming Style header
+-- Modified createTab function with moved elements and adjusted layout
 function Library:createTab(options: table)
 	Utility:validateOptions(options, {
 		text = {Default = "Tab", ExpectedType = "string"},
 		icon = {Default = "124718082122263", ExpectedType = "string"},
 	})
 
-	-- Change tab size depending on Library.tabSizeX, maybe make resizer for tabs later
-	Background.Tabs.Size = UDim2.new(0, Library.tabSizeX, 1, 0)
-	Background.Pages.Size = UDim2.new(1, -Library.tabSizeX, 1, 0)
+	-- Smaller tab size for more compact layout
+	Background.Tabs.Size = UDim2.new(0, Library.tabSizeX * 0.8, 1, 0) -- Made 20% smaller
+	Background.Pages.Size = UDim2.new(1, -Library.tabSizeX * 0.8, 1, 0)
 
 	local ScrollingFrame = Background.Tabs.Frame.ScrollingFrame
 
@@ -319,8 +320,9 @@ function Library:createTab(options: table)
 	
 	local Frame = Page.Frame
 	
-	-- Enhanced Gaming Style Background
+	-- Enhanced Gaming Style Background - smaller height
 	Frame.BackgroundColor3 = Color3.fromRGB(15, 20, 45)
+	Frame.Size = UDim2.new(1, 0, 1, -20) -- Made background smaller
 	
 	-- Add gradient background to Frame
 	local UIGradient = Instance.new("UIGradient")
@@ -331,11 +333,11 @@ function Library:createTab(options: table)
 	UIGradient.Rotation = 135
 	UIGradient.Parent = Frame
 	
-	-- Add top accent line (moved higher up)
+	-- Add top accent line (moved to very top edge)
 	local TopAccentLine = Instance.new("Frame")
 	TopAccentLine.Name = "TopAccentLine"
-	TopAccentLine.Size = UDim2.new(1, 0, 0, 1) -- Made thinner
-	TopAccentLine.Position = UDim2.new(0, 0, 0, 0) -- At the very top
+	TopAccentLine.Size = UDim2.new(1, 0, 0, 2) -- Made slightly thicker
+	TopAccentLine.Position = UDim2.new(0, 0, 0, -1) -- Moved above the frame
 	TopAccentLine.BorderSizePixel = 0
 	TopAccentLine.Parent = Frame
 	
@@ -349,17 +351,21 @@ function Library:createTab(options: table)
 	}
 	LineGradient.Parent = TopAccentLine
 	
+	-- Remove or hide the PageLine that divides sections
 	local PageLine = Frame.Line
+	if PageLine then
+		PageLine.Visible = false -- Hide the divider line
+	end
 
-	-- Enhanced CurrentTabLabel styling - moved higher up
+	-- Enhanced CurrentTabLabel styling - moved much higher up and made bigger
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
 	CurrentTabLabel.Font = Enum.Font.GothamBold
-    CurrentTabLabel.TextSize = 18
+    CurrentTabLabel.TextSize = 24 -- Made bigger (was 18)
 	CurrentTabLabel.BackgroundTransparency = 1
-	CurrentTabLabel.Position = UDim2.new(0, 20, 0, 8) -- Moved up from 12 to 8
-	CurrentTabLabel.Size = UDim2.new(1, -40, 0, 24) -- Full width now, no space for badge
+	CurrentTabLabel.Position = UDim2.new(0, 20, 0, 2) -- Moved way up (was 8)
+	CurrentTabLabel.Size = UDim2.new(1, -40, 0, 32) -- Made taller for bigger text
 	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 	
 	-- Remove the old accent bar
@@ -367,11 +373,11 @@ function Library:createTab(options: table)
 		CurrentTabLabel.AccentBar:Destroy()
 	end
 	
-	-- Add pulsing accent dot
+	-- Add pulsing accent dot (moved up with the text)
 	local AccentDot = Instance.new("Frame")
 	AccentDot.Name = "AccentDot"
-	AccentDot.Size = UDim2.new(0, 6, 0, 6)
-	AccentDot.Position = UDim2.new(0, -14, 0.5, -3)
+	AccentDot.Size = UDim2.new(0, 8, 0, 8) -- Made slightly bigger
+	AccentDot.Position = UDim2.new(0, -16, 0.5, -4)
 	AccentDot.BackgroundColor3 = Theme.PrimaryColor
 	AccentDot.BorderSizePixel = 0
 	AccentDot.Parent = CurrentTabLabel
@@ -387,10 +393,8 @@ function Library:createTab(options: table)
 	local pulseTween = TweenService:Create(AccentDot, pulseInfo, {BackgroundTransparency = 0.5})
 	pulseTween:Play()
 
-	-- REMOVED Gaming Badge (PRO badge removed as requested)
-
 	local SubTabs = Page.SubTabs
-	SubTabs.Position = UDim2.new(0, 0, 0, 38) -- Moved up closer to title
+	SubTabs.Position = UDim2.new(0, 0, 0, 32) -- Moved up closer to title (was 38)
 	SubTabs.Size = UDim2.new(1, 0, 0, 36)
 	
 	-- Make SubTabs blend with main background (unified background)
@@ -406,12 +410,11 @@ function Library:createTab(options: table)
 	SubTabsGradient.Rotation = 135
 	SubTabsGradient.Parent = SubTabs
 	
-	-- Style the SubLine to be more elegant
+	-- Hide or remove the SubLine that divides SubTabs from content
 	local SubLine = SubTabs.Line
-	SubLine.Size = UDim2.new(1, -32, 0, 1)
-	SubLine.Position = UDim2.new(0, 16, 1, -1)
-	SubLine.BackgroundColor3 = Theme.Line
-	SubLine.BackgroundTransparency = 0.4
+	if SubLine then
+		SubLine.Visible = false -- Hide the divider line
+	end
 
 	local function tweenTabAssets(tab: Instance, icon: Instance, textButton: Instance, color: Color3, backgroundColor3: Color3, backgroundTransparency: number, textTransparency: number, imageTransparency: number)
 		Utility:tween(tab, {BackgroundColor3 = backgroundColor3, BackgroundTransparency = backgroundTransparency}, 0.5):Play()
@@ -496,8 +499,6 @@ function Library:createTab(options: table)
 		{object = TextButton, property = "TextColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
 		{object = Frame, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
 		{object = SubTabs, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
-		{object = PageLine, property = "BackgroundColor3", theme = {"Line"}},
-		{object = SubLine, property = "BackgroundColor3", theme = {"Line"}},
 		{object = CurrentTabLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
 		{object = AccentDot, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 		{object = TopAccentLine, property = "BackgroundColor3", theme = {"PrimaryColor"}},
