@@ -291,6 +291,7 @@ function Library:createTab(options: table)
 	Utility:validateOptions(options, {
 		text = {Default = "Tab", ExpectedType = "string"},
 		icon = {Default = "124718082122263", ExpectedType = "string"},
+		isLastInSection = {Default = false, ExpectedType = "boolean"}, -- New parameter
 	})
 
 	-- Change tab size depending on Library.tabSizeX, maybe make resizer for tabs later
@@ -312,6 +313,28 @@ function Library:createTab(options: table)
 	TextButton.Text = options.text
 	TextButton.Font = Enum.Font.Gotham
     TextButton.TextSize = 14
+
+	-- Add section separator line if this is the last tab in a section
+	if options.isLastInSection then
+		local SectionSeparator = Instance.new("Frame")
+		SectionSeparator.Name = "SectionSeparator"
+		SectionSeparator.Size = UDim2.new(1, -32, 0, 1) -- Full width minus padding, 1px height
+		SectionSeparator.Position = UDim2.new(0, 16, 1, 8) -- Below the tab with spacing
+		SectionSeparator.BackgroundColor3 = Theme.Line
+		SectionSeparator.BackgroundTransparency = 0.4
+		SectionSeparator.BorderSizePixel = 0
+		SectionSeparator.Parent = Tab
+
+		-- Add subtle corner radius
+		local SeparatorCorner = Instance.new("UICorner")
+		SeparatorCorner.CornerRadius = UDim.new(0, 1)
+		SeparatorCorner.Parent = SectionSeparator
+
+		-- Register for theme changes
+		Theme:registerToObjects({
+			{object = SectionSeparator, property = "BackgroundColor3", theme = {"Line"}},
+		}, "SectionSeparator")
+	end
 
 	local Page = Assets.Pages.Page:Clone()
 	Page.Parent = Background.Pages
