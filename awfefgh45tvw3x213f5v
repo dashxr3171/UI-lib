@@ -319,7 +319,7 @@ function Library:createTab(options: table)
 	
 	local Frame = Page.Frame
 	
-	-- Enhanced Version 4 Gaming Style Background
+	-- Enhanced Gaming Style Background
 	Frame.BackgroundColor3 = Color3.fromRGB(15, 20, 45)
 	
 	-- Add gradient background to Frame
@@ -331,11 +331,11 @@ function Library:createTab(options: table)
 	UIGradient.Rotation = 135
 	UIGradient.Parent = Frame
 	
-	-- Add top accent line
+	-- Add top accent line (moved higher up)
 	local TopAccentLine = Instance.new("Frame")
 	TopAccentLine.Name = "TopAccentLine"
-	TopAccentLine.Size = UDim2.new(1, 0, 0, 2)
-	TopAccentLine.Position = UDim2.new(0, 0, 0, 0)
+	TopAccentLine.Size = UDim2.new(1, 0, 0, 1) -- Made thinner
+	TopAccentLine.Position = UDim2.new(0, 0, 0, 0) -- At the very top
 	TopAccentLine.BorderSizePixel = 0
 	TopAccentLine.Parent = Frame
 	
@@ -351,15 +351,15 @@ function Library:createTab(options: table)
 	
 	local PageLine = Frame.Line
 
-	-- Enhanced CurrentTabLabel styling (Version 4)
+	-- Enhanced CurrentTabLabel styling - moved higher up
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
 	CurrentTabLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
 	CurrentTabLabel.Font = Enum.Font.GothamBold
     CurrentTabLabel.TextSize = 18
 	CurrentTabLabel.BackgroundTransparency = 1
-	CurrentTabLabel.Position = UDim2.new(0, 20, 0, 12) -- Better positioning
-	CurrentTabLabel.Size = UDim2.new(1, -140, 0, 24) -- Leave space for badge
+	CurrentTabLabel.Position = UDim2.new(0, 20, 0, 8) -- Moved up from 12 to 8
+	CurrentTabLabel.Size = UDim2.new(1, -40, 0, 24) -- Full width now, no space for badge
 	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Left
 	
 	-- Remove the old accent bar
@@ -386,46 +386,25 @@ function Library:createTab(options: table)
 	local pulseInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 	local pulseTween = TweenService:Create(AccentDot, pulseInfo, {BackgroundTransparency = 0.5})
 	pulseTween:Play()
-	
-	-- Add Gaming Badge (Pro/Active/Elite)
-	local GamingBadge = Instance.new("Frame")
-	GamingBadge.Name = "GamingBadge"
-	GamingBadge.Size = UDim2.new(0, 40, 0, 16)
-	GamingBadge.Position = UDim2.new(1, -60, 0, 16)
-	GamingBadge.BackgroundColor3 = Color3.fromRGB(90, 135, 255)
-	GamingBadge.BackgroundTransparency = 0.85
-	GamingBadge.BorderSizePixel = 0
-	GamingBadge.Parent = Frame
-	
-	-- Badge corner radius
-	local BadgeCorner = Instance.new("UICorner")
-	BadgeCorner.CornerRadius = UDim.new(0, 10)
-	BadgeCorner.Parent = GamingBadge
-	
-	-- Badge border
-	local BadgeBorder = Instance.new("UIStroke")
-	BadgeBorder.Color = Color3.fromRGB(90, 135, 255)
-	BadgeBorder.Transparency = 0.7
-	BadgeBorder.Thickness = 1
-	BadgeBorder.Parent = GamingBadge
-	
-	-- Badge text
-	local BadgeText = Instance.new("TextLabel")
-	BadgeText.Size = UDim2.new(1, 0, 1, 0)
-	BadgeText.BackgroundTransparency = 1
-	BadgeText.Text = "PRO"
-	BadgeText.TextColor3 = Theme.PrimaryColor
-	BadgeText.TextScaled = true
-	BadgeText.Font = Enum.Font.GothamBold
-	BadgeText.Parent = GamingBadge
+
+	-- REMOVED Gaming Badge (PRO badge removed as requested)
 
 	local SubTabs = Page.SubTabs
-	SubTabs.Position = UDim2.new(0, 0, 0, 50) -- Move down more for enhanced header
-	SubTabs.Size = UDim2.new(1, 0, 0, 36) -- Slightly smaller
+	SubTabs.Position = UDim2.new(0, 0, 0, 38) -- Moved up closer to title
+	SubTabs.Size = UDim2.new(1, 0, 0, 36)
 	
-	-- Enhanced SubTabs background
-	SubTabs.BackgroundColor3 = Color3.fromRGB(15, 20, 45)
-	SubTabs.BackgroundTransparency = 0.05
+	-- Make SubTabs blend with main background (unified background)
+	SubTabs.BackgroundColor3 = Color3.fromRGB(15, 20, 45) -- Same as Frame
+	SubTabs.BackgroundTransparency = 0 -- Fully opaque to blend
+	
+	-- Add the same gradient to SubTabs for seamless look
+	local SubTabsGradient = Instance.new("UIGradient")
+	SubTabsGradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 20, 45)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(35, 25, 65))
+	}
+	SubTabsGradient.Rotation = 135
+	SubTabsGradient.Parent = SubTabs
 	
 	-- Style the SubLine to be more elegant
 	local SubLine = SubTabs.Line
@@ -522,13 +501,168 @@ function Library:createTab(options: table)
 		{object = CurrentTabLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
 		{object = AccentDot, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 		{object = TopAccentLine, property = "BackgroundColor3", theme = {"PrimaryColor"}},
-		{object = GamingBadge, property = "BackgroundColor3", theme = {"PrimaryColor"}},
-		{object = BadgeText, property = "TextColor3", theme = {"PrimaryColor"}},
-		{object = BadgeBorder, property = "Color", theme = {"PrimaryColor"}},
 	}, "Tab")
 
 	local PassingContext = setmetatable({Page = Page}, Library)
 	return PassingContext
+end
+
+function Library:createSubTab(options: table)
+	-- Use provided options, or fall back to defaults if not provided	
+	Utility:validateOptions(options, {
+		sectionStyle = {Default = "Double", ExpectedType = "string"},
+		text = {Default = "SubTab", ExpectedType = "string"},
+	})
+
+	local Moveable = self.Page.SubTabs.Frame.Moveable
+	local Underline, ScrollingFrame = Moveable.Underline, Moveable.Parent.ScrollingFrame
+
+	local SubPage = Assets.Pages.SubPage:Clone()
+	SubPage.Parent = self.Page
+	SubPage.Position = UDim2.new(0, 0, 0, 74) -- Adjusted for new header positioning
+
+	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
+
+	-- Enhanced SubTab styling to look like gradient buttons
+	local SubTab = Assets.Pages.SubTab:Clone()
+	SubTab.Visible = true
+	SubTab.Text = options.text
+	SubTab.TextColor3 = Color3.fromRGB(140, 140, 155) -- Dimmed by default
+	SubTab.Font = Enum.Font.Gotham
+	SubTab.TextSize = 12 -- Slightly smaller
+	SubTab.BackgroundTransparency = 0 -- Make it visible
+	SubTab.BackgroundColor3 = Color3.fromRGB(25, 30, 60) -- Dark background
+	SubTab.BorderSizePixel = 0
+	SubTab.Parent = ScrollingFrame
+	
+	-- Add corner radius to make it look like a button
+	local SubTabCorner = Instance.new("UICorner")
+	SubTabCorner.CornerRadius = UDim.new(0, 4)
+	SubTabCorner.Parent = SubTab
+	
+	-- Add border stroke
+	local SubTabStroke = Instance.new("UIStroke")
+	SubTabStroke.Color = Color3.fromRGB(60, 70, 100)
+	SubTabStroke.Transparency = 0.8
+	SubTabStroke.Thickness = 1
+	SubTabStroke.Parent = SubTab
+
+	local TextService = game:GetService("TextService")
+	-- Use exact text width with padding for button look
+	local textBounds = TextService:GetTextSize(options.text, 12, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
+	SubTab.Size = UDim2.new(0, textBounds.X + 20, 0, 28) -- Button-like height
+
+	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
+		-- Enhanced button-style animations
+		if not disableUnderlineTween then
+			-- Active state - gradient button style
+			local activeGradient = Instance.new("UIGradient")
+			activeGradient.Color = ColorSequence.new{
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(90, 135, 255)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(124, 58, 237))
+			}
+			activeGradient.Rotation = 135
+			activeGradient.Parent = subTab
+			
+			Utility:tween(subTab, {
+				BackgroundColor3 = Color3.fromRGB(90, 135, 255),
+				TextColor3 = Color3.fromRGB(255, 255, 255)
+			}, 0.2):Play()
+			
+			-- Add glow effect
+			if not subTab:FindFirstChild("UIStroke") then
+				local glowStroke = Instance.new("UIStroke")
+				glowStroke.Color = Color3.fromRGB(90, 135, 255)
+				glowStroke.Transparency = 0.5
+				glowStroke.Thickness = 2
+				glowStroke.Parent = subTab
+			end
+			
+		else
+			-- Inactive state - remove gradient and glow
+			if subTab:FindFirstChild("UIGradient") then
+				subTab.UIGradient:Destroy()
+			end
+			if subTab:FindFirstChild("UIStroke") then
+				subTab.UIStroke:Destroy()
+			end
+			
+			Utility:tween(subTab, {
+				BackgroundColor3 = Color3.fromRGB(25, 30, 60),
+				TextColor3 = Color3.fromRGB(140, 140, 155)
+			}, 0.2):Play()
+		end
+	end
+
+	local function autoCanvasSizeSubPageScrollingFrame()
+		local max = math.max(Left.UIListLayout.AbsoluteContentSize.Y, Right.UIListLayout.AbsoluteContentSize.Y)
+		SubPage.ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, max)
+	end
+
+	local function updateSectionAnimation()
+		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 10)}, 0.2):Play()
+
+		task.delay(0.2, function()
+			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.2):Play()
+		end)
+	end
+
+	local Context = Utility:validateContext({
+		Page = {Value = SubPage, ExpectedType = "Instance"},
+		Pages = {Value = self.Page, ExpectedType = "Instance"},
+		Popups = {Value = Popups, ExpectedType = "Instance"},
+		ScrollingFrame = {Value = ScrollingFrame, ExpectedType = "Instance"},
+		animation = {Value = updateSectionAnimation, ExpectedType = "function"},
+
+		tweenTabOn = {Value = function()
+			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0, false)
+		end, ExpectedType = "function"},
+
+		tweenTabsOff = {Value = function(subTab)
+			tweenSubTabAssets(subTab, Underline, Theme.SecondaryTextColor, 0, true)
+		end, ExpectedType = "function"},
+
+		hoverOn = {Value = function()
+			if not SubTab:FindFirstChild("UIGradient") then -- Only hover if not active
+				Utility:tween(SubTab, {
+					BackgroundColor3 = Color3.fromRGB(40, 50, 80),
+					TextColor3 = Color3.fromRGB(180, 180, 200)
+				}, 0.2):Play()
+			end
+		end, ExpectedType = "function"},
+
+		hoverOff = {Value = function()
+			if not SubTab:FindFirstChild("UIGradient") then -- Only unhover if not active
+				Utility:tween(SubTab, {
+					BackgroundColor3 = Color3.fromRGB(25, 30, 60),
+					TextColor3 = Color3.fromRGB(140, 140, 155)
+				}, 0.2):Play()
+			end
+		end, ExpectedType = "function"},
+	})
+
+	local Navigation = Modules.Navigation.new(Context)
+
+	if not self.firstSubTabDebounce then
+		Navigation:enableFirstTab()
+		self.firstSubTabDebounce = true
+	end
+
+	Left.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
+	Right.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
+
+	SubTab.MouseButton1Down:Connect(Navigation:selectTab())
+	SubTab.MouseEnter:Connect(Navigation:hoverEffect(true))
+	SubTab.MouseLeave:Connect(Navigation:hoverEffect(false))
+	
+	Theme:registerToObjects({
+		{object = Underline, property = "BackgroundColor3", theme = {"PrimaryColor"}},
+		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
+		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
+	}, "SubTab")
+
+    local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = options.sectionStyle}, Library)
+return PassingContext
 end
 
 function Library:createSubTab(options: table)
