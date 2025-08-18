@@ -123,7 +123,7 @@ Glow:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 			data.object.Parent = data.folders.Right
 		end
 	end
-	
+
 	for _, data in ipairs(Library.SectionFolder.Left) do
 		if Glow.AbsoluteSize.X <= 660 then
 			data.folders.Right.Visible = false
@@ -141,7 +141,6 @@ function Library.new(options)
 		sizeY = {Default = Library.sizeY, ExpectedType = "number"},
 		tabSizeX = {Default = Library.tabSizeX, ExpectedType = "number"},
 		title = {Default = "Leny", ExpectedType = "string"},
-		folderName = {Default = "Leny", ExpectedType = "string"}
 	})
 	Library.folderName = options.folderName
 	Library.tabSizeX = math.clamp(options.tabSizeX, 72, 200)
@@ -157,9 +156,9 @@ function Library:createAddons(text, imageButton, scrollingFrame, additionalAddon
 	local Addon = Assets.Elements.Addons:Clone()
 	Addon.Size = UDim2.fromOffset(scrollingFrame.AbsoluteSize.X * 0.5, Addon.Inner.UIListLayout.AbsoluteContentSize.Y)
 	Addon.Parent = Popups
-	
+
 	local Inner = Addon.Inner
-	
+
 	local TextLabel = Inner.TextLabel
 	TextLabel.Text = text .. " Addons"
 
@@ -174,13 +173,13 @@ function Library:createAddons(text, imageButton, scrollingFrame, additionalAddon
 		PositionPadding = {Value = 18 + 7, ExpectedType = "number"},
 		SizePadding = {Value = 30, ExpectedType = "number"},
 	})
-	
+
 	Theme:registerToObjects({
 		{object = Addon, property = "BackgroundColor3", theme = {"Line"}},
 		{object = Inner, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
 		{object = TextLabel, property = "TextColor3", theme = {"PrimaryTextColor"}},
 	})
-	
+
     local Popup = Modules.Popup.new(PopupContext)
 	imageButton.MouseButton1Down:Connect(Popup:togglePopup())
 	Popup:hidePopupOnClickingOutside()
@@ -281,13 +280,15 @@ function Library:createLabel(options: table)
     TextLabel.Parent = LabelContainer
 
     -- REMOVED the logic that was hiding the first dot!
-    
+
     Theme:registerToObjects({
         {object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
         {object = Dot, property = "BackgroundColor3", theme = {"SecondaryTextColor"}},
     })
 end
 
+-- Modified createTab function with Version 4 Gaming Style header
+-- Modified createTab function with moved elements and adjusted layout
 function Library:createTab(options: table)
 	Utility:validateOptions(options, {
 		text = {Default = "Tab", ExpectedType = "string"},
@@ -316,13 +317,13 @@ function Library:createTab(options: table)
 
 	local Page = Assets.Pages.Page:Clone()
 	Page.Parent = Background.Pages
-	
+
 	local Frame = Page.Frame
-	
+
 	-- Enhanced Gaming Style Background - using theme colors
 	Frame.BackgroundColor3 = Theme.SubBackgroundColor or Theme.BackgroundColor or Theme.PrimaryBackgroundColor
 	Frame.Size = UDim2.new(1, 0, 0.1, 0) -- Dramatically reduced to 10% height
-	
+
 	-- Add gradient background to Frame using theme colors
 	local UIGradient = Instance.new("UIGradient")
 	UIGradient.Color = ColorSequence.new{
@@ -331,15 +332,17 @@ function Library:createTab(options: table)
 	}
 	UIGradient.Rotation = 135
 	UIGradient.Parent = Frame
-	
+
+	-- Add top accent line (moved much higher above the frame)
 	-- Add top accent line (moved even higher above the frame)
 	local TopAccentLine = Instance.new("Frame")
 	TopAccentLine.Name = "TopAccentLine"
 	TopAccentLine.Size = UDim2.new(1, 0, 0, 2) -- Made slightly thicker
+	TopAccentLine.Position = UDim2.new(0, 0, 0, -12) -- Moved much further up above the frame
 	TopAccentLine.Position = UDim2.new(0, 0, 0, -20) -- Moved even further up above the frame
 	TopAccentLine.BorderSizePixel = 0
 	TopAccentLine.Parent = Frame
-	
+
 	-- Create gradient for top line
 	local LineGradient = Instance.new("UIGradient")
 	LineGradient.Color = ColorSequence.new{
@@ -349,13 +352,14 @@ function Library:createTab(options: table)
 		ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
 	}
 	LineGradient.Parent = TopAccentLine
-	
+
 	-- Remove or hide the PageLine that divides sections
 	local PageLine = Frame.Line
 	if PageLine then
 		PageLine.Visible = false -- Hide the divider line
 	end
 
+	-- Enhanced CurrentTabLabel styling - moved much higher up and made bigger
 	-- Enhanced CurrentTabLabel styling - moved even higher up and made bigger
 	local CurrentTabLabel = Frame.CurrentTabLabel
 	CurrentTabLabel.Text = options.text
@@ -363,15 +367,16 @@ function Library:createTab(options: table)
 	CurrentTabLabel.Font = Enum.Font.GothamBold
     CurrentTabLabel.TextSize = 24 -- Made bigger (was 18)
 	CurrentTabLabel.BackgroundTransparency = 1
+	CurrentTabLabel.Position = UDim2.new(0, 20, 0, 2) -- Moved way up (was 8)
 	CurrentTabLabel.Position = UDim2.new(0, 20, 0, -3) -- Moved even higher up (was 2)
 	CurrentTabLabel.Size = UDim2.new(1, -40, 0, 32) -- Made taller for bigger text
 	CurrentTabLabel.TextXAlignment = Enum.TextXAlignment.Left
-	
+
 	-- Remove the old accent bar
 	if CurrentTabLabel:FindFirstChild("AccentBar") then
 		CurrentTabLabel.AccentBar:Destroy()
 	end
-	
+
 	-- Add pulsing accent dot (moved up with the text)
 	local AccentDot = Instance.new("Frame")
 	AccentDot.Name = "AccentDot"
@@ -385,7 +390,7 @@ function Library:createTab(options: table)
 	local DotCorner = Instance.new("UICorner")
 	DotCorner.CornerRadius = UDim.new(0.5, 0)
 	DotCorner.Parent = AccentDot
-	
+
 	-- Add pulsing animation to dot
 	local TweenService = game:GetService("TweenService")
 	local pulseInfo = TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
@@ -395,11 +400,11 @@ function Library:createTab(options: table)
 	local SubTabs = Page.SubTabs
 	SubTabs.Position = UDim2.new(0, 0, 0, 32) -- Moved up closer to title (was 38)
 	SubTabs.Size = UDim2.new(1, 0, 0, 36)
-	
+
 	-- Make SubTabs blend with main background using theme colors
 	SubTabs.BackgroundColor3 = Theme.SubBackgroundColor or Theme.BackgroundColor or Theme.PrimaryBackgroundColor
 	SubTabs.BackgroundTransparency = 0 -- Fully opaque to blend
-	
+
 	-- Add the same gradient to SubTabs for seamless look
 	local SubTabsGradient = Instance.new("UIGradient")
 	SubTabsGradient.Color = ColorSequence.new{
@@ -408,7 +413,7 @@ function Library:createTab(options: table)
 	}
 	SubTabsGradient.Rotation = 135
 	SubTabsGradient.Parent = SubTabs
-	
+
 	-- Hide or remove the SubLine that divides SubTabs from content
 	local SubLine = SubTabs.Line
 	if SubLine then
@@ -449,7 +454,7 @@ function Library:createTab(options: table)
 			Fade:Destroy()
 		end)
 	end
-		
+
 	local Context = Utility:validateContext({
 		Page = {Value = Page, ExpectedType = "Instance"},
 		Pages = {Value = Background.Pages, ExpectedType = "Instance"},
@@ -491,7 +496,7 @@ function Library:createTab(options: table)
 	TextButton.MouseButton1Down:Connect(Navigation:selectTab())
 	ImageButton.MouseEnter:Connect(Navigation:hoverEffect(true))
 	ImageButton.MouseLeave:Connect(Navigation:hoverEffect(false))
-	
+
 	Theme:registerToObjects({
 		{object = Tab, property = "BackgroundColor3", theme = {"TabBackgroundColor"}},
 		{object = Icon, property = "ImageColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
@@ -534,12 +539,12 @@ function Library:createSubTab(options: table)
 	SubTab.BackgroundColor3 = Color3.fromRGB(25, 30, 60) -- Dark background
 	SubTab.BorderSizePixel = 0
 	SubTab.Parent = ScrollingFrame
-	
+
 	-- Add corner radius to make it look like a button
 	local SubTabCorner = Instance.new("UICorner")
 	SubTabCorner.CornerRadius = UDim.new(0, 4)
 	SubTabCorner.Parent = SubTab
-	
+
 	-- Add border stroke
 	local SubTabStroke = Instance.new("UIStroke")
 	SubTabStroke.Color = Color3.fromRGB(60, 70, 100)
@@ -563,12 +568,12 @@ function Library:createSubTab(options: table)
 			}
 			activeGradient.Rotation = 135
 			activeGradient.Parent = subTab
-			
+
 			Utility:tween(subTab, {
 				BackgroundColor3 = Color3.fromRGB(90, 135, 255),
 				TextColor3 = Color3.fromRGB(255, 255, 255)
 			}, 0.2):Play()
-			
+
 			-- Add glow effect
 			if not subTab:FindFirstChild("UIStroke") then
 				local glowStroke = Instance.new("UIStroke")
@@ -577,7 +582,7 @@ function Library:createSubTab(options: table)
 				glowStroke.Thickness = 2
 				glowStroke.Parent = subTab
 			end
-			
+
 		else
 			-- Inactive state - remove gradient and glow
 			if subTab:FindFirstChild("UIGradient") then
@@ -586,7 +591,7 @@ function Library:createSubTab(options: table)
 			if subTab:FindFirstChild("UIStroke") then
 				subTab.UIStroke:Destroy()
 			end
-			
+
 			Utility:tween(subTab, {
 				BackgroundColor3 = Color3.fromRGB(25, 30, 60),
 				TextColor3 = Color3.fromRGB(140, 140, 155)
@@ -654,7 +659,145 @@ function Library:createSubTab(options: table)
 	SubTab.MouseButton1Down:Connect(Navigation:selectTab())
 	SubTab.MouseEnter:Connect(Navigation:hoverEffect(true))
 	SubTab.MouseLeave:Connect(Navigation:hoverEffect(false))
-	
+
+	Theme:registerToObjects({
+		{object = Underline, property = "BackgroundColor3", theme = {"PrimaryColor"}},
+		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
+		{object = SubPage.ScrollingFrame, property = "ScrollBarImageColor3", theme = {"ScrollingBarImageColor"}}
+	}, "SubTab")
+
+    local PassingContext = setmetatable({Left = Left, Right = Right, sectionStyle = options.sectionStyle}, Library)
+return PassingContext
+end
+
+function Library:createSubTab(options: table)
+	-- Use provided options, or fall back to defaults if not provided	
+	Utility:validateOptions(options, {
+		sectionStyle = {Default = "Double", ExpectedType = "string"},
+		text = {Default = "SubTab", ExpectedType = "string"},
+	})
+
+	local Moveable = self.Page.SubTabs.Frame.Moveable
+	local Underline, ScrollingFrame = Moveable.Underline, Moveable.Parent.ScrollingFrame
+
+	local SubPage = Assets.Pages.SubPage:Clone()
+	SubPage.Parent = self.Page
+	SubPage.Position = UDim2.new(0, 0, 0, 85) -- Move down to account for new header
+
+	local Left, Right = SubPage.ScrollingFrame.Left, SubPage.ScrollingFrame.Right
+
+	local SubTab = Assets.Pages.SubTab:Clone()
+	SubTab.Visible = true
+	SubTab.Text = options.text
+	SubTab.TextColor3 = Theme.SecondaryTextColor
+	SubTab.Font = Enum.Font.Gotham
+	SubTab.TextSize = 14
+	SubTab.BackgroundTransparency = 1
+	SubTab.Parent = ScrollingFrame
+
+	local TextService = game:GetService("TextService")
+	-- Use exact text width with minimal padding
+	local textBounds = TextService:GetTextSize(options.text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
+	SubTab.Size = UDim2.new(0, textBounds.X + 8, 1, 0) -- Very minimal padding
+
+	local function tweenSubTabAssets(subTab, underline, textColor, textTransparency: number, disableUnderlineTween: boolean)
+		Utility:tween(subTab, {TextColor3 = textColor, TextTransparency = textTransparency}, 0.2):Play()
+
+		if not disableUnderlineTween then
+			-- Wait a frame for layout to complete
+			task.wait()
+
+			-- Get exact text width
+			local actualTextBounds = TextService:GetTextSize(subTab.Text, 14, Enum.Font.Gotham, Vector2.new(math.huge, math.huge))
+			local underlineWidth = actualTextBounds.X
+
+			-- Calculate position using AbsolutePosition (most reliable)
+			local subTabLeft = subTab.AbsolutePosition.X
+			local scrollingFrameLeft = ScrollingFrame.AbsolutePosition.X
+			local relativePosition = subTabLeft - scrollingFrameLeft
+
+			-- Center the underline under the text
+			local textPadding = (subTab.AbsoluteSize.X - actualTextBounds.X) / 2
+			local finalPosition = relativePosition + textPadding - 4
+
+			-- Apply the underline
+			Utility:tween(underline, {
+				BackgroundColor3 = Theme.PrimaryColor, 
+				Position = UDim2.new(0, finalPosition, 1, 0),
+				Size = UDim2.new(0, underlineWidth, 0, 2)
+			}, 0.2):Play()
+
+			-- Add gradient effect to underline if it doesn't exist
+			if not underline:FindFirstChild("UIGradient") then
+				local gradient = Instance.new("UIGradient")
+				gradient.Color = ColorSequence.new{
+					ColorSequenceKeypoint.new(0, Theme.PrimaryColor),
+					ColorSequenceKeypoint.new(1, Color3.new(Theme.PrimaryColor.R * 0.7, Theme.PrimaryColor.G * 0.7, Theme.PrimaryColor.B * 0.7))
+				}
+				gradient.Rotation = 90
+				gradient.Parent = underline
+			end
+
+			-- Add rounded corners to underline
+			if not underline:FindFirstChild("UICorner") then
+				local corner = Instance.new("UICorner")
+				corner.CornerRadius = UDim.new(0, 1)
+				corner.Parent = underline
+			end
+		end
+	end
+
+	local function autoCanvasSizeSubPageScrollingFrame()
+		local max = math.max(Left.UIListLayout.AbsoluteContentSize.Y, Right.UIListLayout.AbsoluteContentSize.Y)
+		SubPage.ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, max)
+	end
+
+	local function updateSectionAnimation()
+		Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 10)}, 0.2):Play()
+
+		task.delay(0.2, function()
+			Utility:tween(SubPage.ScrollingFrame.UIPadding, {PaddingTop = UDim.new(0, 0)}, 0.2):Play()
+		end)
+	end
+
+	local Context = Utility:validateContext({
+		Page = {Value = SubPage, ExpectedType = "Instance"},
+		Pages = {Value = self.Page, ExpectedType = "Instance"},
+		Popups = {Value = Popups, ExpectedType = "Instance"},
+		ScrollingFrame = {Value = ScrollingFrame, ExpectedType = "Instance"},
+		animation = {Value = updateSectionAnimation, ExpectedType = "function"},
+
+		tweenTabOn = {Value = function()
+			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0, false)
+		end, ExpectedType = "function"},
+
+		tweenTabsOff = {Value = function(subTab)
+			tweenSubTabAssets(subTab, Underline, Theme.SecondaryTextColor, 0, true)
+		end, ExpectedType = "function"},
+
+		hoverOn = {Value = function()
+			tweenSubTabAssets(SubTab, Underline, Theme.PrimaryColor, 0.3, true)
+		end, ExpectedType = "function"},
+
+		hoverOff = {Value = function()
+			tweenSubTabAssets(SubTab, Underline, Theme.SecondaryTextColor, 0, true)
+		end, ExpectedType = "function"},
+	})
+
+	local Navigation = Modules.Navigation.new(Context)
+
+	if not self.firstSubTabDebounce then
+		Navigation:enableFirstTab()
+		self.firstSubTabDebounce = true
+	end
+
+	Left.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
+	Right.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(autoCanvasSizeSubPageScrollingFrame)
+
+	SubTab.MouseButton1Down:Connect(Navigation:selectTab())
+	SubTab.MouseEnter:Connect(Navigation:hoverEffect(true))
+	SubTab.MouseLeave:Connect(Navigation:hoverEffect(false))
+
 	Theme:registerToObjects({
 		{object = Underline, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 		{object = SubTab, property = "TextColor3", theme = {"SecondaryTextColor", "PrimaryColor"}},
@@ -670,7 +813,7 @@ function Library:createSection(options: table)
 		text = {Default = "Section", ExpectedType = "string"},
 		position = {Default = "Left", ExpectedType = "string"},
 	})
-		
+
 	local Section = Assets.Pages.Section:Clone()
 	Section.Visible = true
 	Section.Parent = self[options.position]
@@ -681,7 +824,7 @@ function Library:createSection(options: table)
 		if (options.position == "Right") then
 			table.insert(self.SectionFolder.Right, {folders = {Left = self.Left, Right = self.Right}, object = Section})
 		end
-		
+
 		self.Right.Visible = false
 		self.Left.Size = UDim2.fromScale(1, 1)
 		Section.Parent = self.Left
@@ -695,7 +838,7 @@ function Library:createSection(options: table)
 	if (options.position == "Left" and self.sectionStyle ~= "Single") then
 		table.insert(self.SectionFolder.Left, {folders = {Left = self.Left, Right = self.Right}, object = Section})
 	end
-	
+
 	local Inner = Section.Inner
 
 	local TextLabel = Inner.TextLabel
@@ -705,7 +848,7 @@ function Library:createSection(options: table)
 	Section.Inner.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 		Section.Size = UDim2.new(1, 0, 0, Section.Inner.UIListLayout.AbsoluteContentSize.Y + 28)
 	end)
-	
+
 	Theme:registerToObjects({
 		{object = Section, property = "BackgroundColor3", theme = {"Line"}},
 		{object = Inner, property = "BackgroundColor3", theme = {"PrimaryBackgroundColor"}},
@@ -731,7 +874,7 @@ function Library:createToggle(options: table, parent, scrollingFrame)
 
 	local TextLabel = Toggle.TextLabel
 	TextLabel.Text = options.text
-	
+
 	local ImageButton = TextLabel.ImageButton
 	local TextButton = TextLabel.TextButton
 	local Background = TextButton.Background
@@ -741,7 +884,7 @@ function Library:createToggle(options: table, parent, scrollingFrame)
 		Utility:tween(Background, {BackgroundColor3 = backgroundColor}, 0.2):Play()
 		Utility:tween(Circle, {BackgroundColor3 = circleColor, AnchorPoint = anchorPoint, Position = position}, 0.2):Play()
 	end
-	
+
 	local circleOn = false
 
 	local Context = Utility:validateContext({
@@ -762,7 +905,7 @@ function Library:createToggle(options: table, parent, scrollingFrame)
 	local Toggle = Modules.Toggle.new(Context)
 	Toggle:updateState({state = options.state})
 	TextButton.MouseButton1Down:Connect(Toggle:switch())
-	
+
 	Theme:registerToObjects({
 		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
 		{object = Background, property = "BackgroundColor3", theme = {"PrimaryColor", "SecondaryBackgroundColor"}},
@@ -807,7 +950,7 @@ function Library:createSlider(options: table, parent, scrollingFrame)
 	local Slider = Assets.Elements.Slider:Clone()
 	Slider.Visible = true
 	Slider.Parent = parent or self.Section
-	
+
 	local TextLabel = Slider.TextButton.TextLabel
 	local ImageButton = TextLabel.ImageButton
 	local TextBox = TextLabel.TextBox
@@ -815,10 +958,10 @@ function Library:createSlider(options: table, parent, scrollingFrame)
 	local Line = Slider.Line
 	local TextButton = Slider.TextButton
 	local Fill = Line.Fill
-	
+
 	local TextLabel = TextButton.TextLabel
 	TextLabel.Text = options.text
-	
+
 	local Circle = Fill.Circle
 	local InnerCircle = Circle.InnerCircle
 	local CurrentValueLabel = Circle.TextButton.CurrentValueLabel
@@ -860,7 +1003,7 @@ function Library:createSlider(options: table, parent, scrollingFrame)
 
 	local Slider = Modules.Slider.new(Context)
 	Slider:handleSlider()
-	
+
 	Theme:registerToObjects({
 		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
 		{object = Line, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
@@ -873,7 +1016,7 @@ function Library:createSlider(options: table, parent, scrollingFrame)
 		{object = CurrentValueLabel, property = "BackgroundColor3", theme = {"PrimaryColor"}},
 		{object = InnerCircle, property = "BackgroundColor3", theme = {"TertiaryBackgroundColor"}},
 	})
-	
+
 	Fill.BackgroundColor3 = Theme.PrimaryColor
 	Circle.BackgroundColor3 = Theme.PrimaryColor
 	InnerCircle.BackgroundColor3 = Theme.TertiaryBackgroundColor
@@ -1019,13 +1162,13 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 	local Dropdown = Assets.Elements.Dropdown:Clone()
 	Dropdown.Visible = true
 	Dropdown.Parent = parent or self.Section
-	
+
 	local TextLabel = Dropdown.TextLabel
 	TextLabel.Text = options.text
-	
+
 	local ImageButton = TextLabel.ImageButton
 	local Box = Dropdown.Box
-	
+
 	local TextButton = Box.TextButton
 	TextButton.Text = table.concat(options.default, ", ")
 
@@ -1045,7 +1188,7 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 
 		if List.Size.Y.Offset > 0 then
 			Utility:tween(List, {Size = UDim2.new(1, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))}, 0.2):Play()
-			
+
 			for index, value in ipairs(self.DropdownSizes) do
 				scrollingFrame.CanvasSize = scrollingFrame.CanvasSize - value.size
 				scrollingFrame.CanvasSize = scrollingFrame.CanvasSize + UDim2.new(0, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))
@@ -1085,11 +1228,11 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 			end
 
 			Dropdown.ZIndex = 2
-			
+
 			if self.Section then
 				self.Section.Parent.ZIndex = 2
 			end
-			
+
 			Utility:tween(List, {Size = UDim2.new(1, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))}, 0.2):Play()
 			table.insert(Library.DropdownSizes, {object = Dropdown, size = UDim2.new(0, 0, 0, math.clamp(Inner.UIListLayout.AbsoluteContentSize.Y, 0, 210))})
 
@@ -1117,13 +1260,13 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 
 		local TextLabel = DropButton.TextLabel
 		TextLabel.Text = tostring(value)
-		
+
 		Theme:registerToObjects({
 			{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
 			{object = Background, property = "BackgroundColor3", theme = {"PrimaryColor", "SecondaryBackgroundColor"}},
 			{object = Checkmark, property = "ImageColor3", theme = {"TertiaryBackgroundColor"}},
 		})
-		
+
 		return TextButton
 	end
 
@@ -1171,7 +1314,7 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 
 	local Dropdown = Modules.Dropdown.new(Context)
 	Dropdown:handleDropdown()
-	
+
 	Theme:registerToObjects({
 		{object = ImageButton, property = "ImageColor3", theme = {"SecondaryTextColor"}},
 		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
@@ -1184,7 +1327,7 @@ function Library:createDropdown(options: table, parent, scrollingFrame)
 		{object = Search, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
 		{object = Search.Parent, property =  "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
 	})
-	
+
 	List.BackgroundColor3 = Theme.Line
 	Inner.BackgroundColor3 = Theme.PrimaryBackgroundColor
 	Box.BackgroundColor3 = Theme.SecondaryBackgroundColor
@@ -1226,7 +1369,7 @@ function Library:createKeybind(options: table, parent, scrollingFrame)
 		onHeld = {Default = false, ExpectedType = "boolean"},
 		callback = {Default = function() end, ExpectedType = "function"},
 	})
-	
+
 	scrollingFrame = self.ScrollingFrame or scrollingFrame
 
 	local Keybind = Assets.Elements.Keybind:Clone()
@@ -1235,12 +1378,12 @@ function Library:createKeybind(options: table, parent, scrollingFrame)
 
 	local TextLabel = Keybind.TextLabel
 	TextLabel.Text = options.text
-	
+
 	local ImageButton = TextLabel.ImageButton
 	local Background = TextLabel.Background
-	
+
 	local TextButton = Background.TextButton
-	
+
 	if not table.find(self.Exclusions, options.default) then
 		TextButton.Text = options.default
 	else
@@ -1270,14 +1413,14 @@ function Library:createKeybind(options: table, parent, scrollingFrame)
 
 	local Keybind = Modules.Keybind.new(Context)
 	Keybind:handleKeybind()
-	
+
 	Theme:registerToObjects({
 		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
 		{object = ImageButton, property = "ImageColor3", theme = {"SecondaryTextColor"}},
 		{object = Background, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
 		{object = TextButton, property = "TextColor3", theme = {"SecondaryTextColor"}}
 	})
-	
+
 	shared.Flags.Keybind[options.text] = {
 		getKeybind = function(self)
 			return TextButton.Text
@@ -1305,40 +1448,40 @@ function Library:createButton(options: table, parent, scrollingFrame)
 		text = {Default = "Button", ExpectedType = "string"},
 		callback = {Default = function() end, ExpectedType = "function"},
 	})
-	
+
 	scrollingFrame = self.ScrollingFrame or scrollingFrame
-	
+
 	local Button = Assets.Elements.Button:Clone()
 	Button.Visible = true
 	Button.Parent = parent or self.Section
-		
+
 	local Background = Button.Background
-	
+
 	local TextButton = Background.TextButton
 	TextButton.Text = options.text
-	
+
 	TextButton.MouseButton1Down:Connect(function() 
 		Utility:tween(Background, {BackgroundTransparency = 0}, 0.2):Play()
 		Utility:tween(TextButton, {TextColor3 = Theme.PrimaryColor, TextTransparency = 0}, 0.2):Play()
-		
+
 		task.delay(0.2, function()
 			Utility:tween(TextButton, {TextColor3 = Theme.SecondaryTextColor, TextTransparency = 0}, 0.2):Play()
 			Utility:tween(Background, {BackgroundTransparency = 0.3}, 0.2):Play()
 		end)
-		
+
 		options.callback() 
 	end)
-	
+
 	Background.InputBegan:Connect(function(input)
 		Utility:tween(Background, {BackgroundTransparency = 0.3}, 0.2):Play()
 		Utility:tween(TextButton, {TextColor3 = Theme.PrimaryColor, TextTransparency = 0.3}, 0.2):Play()
 	end)
-	
+
 	Background.MouseLeave:Connect(function()
 		Utility:tween(Background, {BackgroundTransparency = 0}, 0.2):Play()
 		Utility:tween(TextButton, {TextColor3 = Theme.SecondaryTextColor, TextTransparency = 0}, 0.2):Play()
 	end)
-	
+
 	Theme:registerToObjects({
 		{object = Background, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
 		{object = TextButton, property = "TextColor3", theme = {"SecondaryTextColor"}},
@@ -1352,18 +1495,18 @@ function Library:createTextBox(options: table, parent, scrollingFrame)
 		default = {Default = "", ExpectedType = "string"},
 		callback = {Default = function() end, ExpectedType = "function"},
 	})
-	
+
 	scrollingFrame = self.ScrollingFrame or scrollingFrame
-	
+
 	local TextBox = Assets.Elements.TextBox:Clone()
 	TextBox.Visible = true
 	TextBox.Parent = parent or self.Section
 
 	local TextLabel = TextBox.TextLabel
 	TextLabel.Text = options.text
-	
+
 	local ImageButton = TextLabel.ImageButton
-	
+
 	local Box = TextLabel.TextBox
 	Box.Text = options.default
 
@@ -1380,7 +1523,7 @@ function Library:createTextBox(options: table, parent, scrollingFrame)
 
 	local TextBox = Modules.TextBox.new(Context)
 	TextBox:handleTextBox()
-	
+
 	Theme:registerToObjects({
 		{object = TextLabel, property = "TextColor3", theme = {"SecondaryTextColor"}},
 		{object = Box, property = "TextColor3", theme = {"SecondaryTextColor"}},
@@ -1420,29 +1563,29 @@ function Library:notify(options: table)
 		scaleX = {Default = 0.165, ExpectedType = "number"},
 		sizeY = {Default = 100, ExpectedType = "number"},
 	})
-	
+
 	local Notification = Assets.Elements.Notification:Clone()
 	Notification.Visible = true
 	Notification.Parent = ScreenGui.Notifications
 	Notification.Size = UDim2.new(options.scaleX, 0, 0, options.sizeY)
-	
+
 	local Title = Notification.Title
 	Title.Text = options.title
-	
+
 	local Body = Notification.Body
 	Body.Text = options.text
-	
+
 	local Line = Notification.Line
-	
+
 	-- Put transparent objects to not be visible to make cool effect
 	local NotificationTransparentObjects = Utility:getTransparentObjects(Notification)
-	
+
 	for _, data in ipairs(NotificationTransparentObjects) do
 		data.object[data.property] = 1
 	end
 
 	Notification.BackgroundTransparency = 1
-	
+
 	-- Get back NotificationTransparentObjects again and make it visible now with cool effect!!
 	for _, data in ipairs(NotificationTransparentObjects) do
 		Utility:tween(data.object, {[data.property] = 0}, 0.2):Play()
@@ -1453,21 +1596,21 @@ function Library:notify(options: table)
 	local notificationPosition = -24
 	local notificationSize = 0
 	local PADDING_Y = 14
-	
+
 	for index, notification in ipairs(ScreenGui.Notifications:GetChildren()) do
 		if index == 1 then
 			notificationSize = notification.AbsoluteSize.Y
 			Utility:tween(notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.2):Play()
 			continue
 		end
-		
+
 		-- Current notification position
 		notificationPosition -= notificationSize + PADDING_Y
 		-- Update notification size for next time to get proper position
 		notificationSize = notification.Size.Y.Offset
 		Notification.Position = UDim2.new(1, Notification.Position.X.Offset, 1, notificationPosition)
 	end
-	
+
 	-- Update notification position when notification is removed
 	if not ChildRemoved then
 		ScreenGui.Notifications.ChildRemoved:Connect(function(child)		
@@ -1486,28 +1629,28 @@ function Library:notify(options: table)
 				Utility:tween(notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.2):Play()
 			end
 		end)
-		
+
 		ChildRemoved = true
 	end
-	
+
 	-- Auto remove notification after a delay
 	task.delay(options.duration, function()
 		if Notification then
 			for _, data in ipairs(Utility:getTransparentObjects(Notification)) do
 				Utility:tween(data.object, {[data.property] = 1}, 0.2):Play()
 			end
-			
+
 			Utility:tween(Notification, {["BackgroundTransparency"] = 1}, 0.2):Play()
-			
+
 			task.wait(0.2)
 			Notification:Destroy()
 		end
 	end)
-	
+
 	-- Show notification
 	Utility:tween(Notification, {Position = UDim2.new(1, -24, 1, notificationPosition)}, 0.2):Play()
 	task.wait(0.2)
-	
+
 	-- Register to Theme
 	Theme:registerToObjects({
 		{object = Notification, property = "BackgroundColor3", theme = {"SecondaryBackgroundColor"}},
@@ -1520,7 +1663,7 @@ end
 
 function Library:LoadConfig(FileName)
 	if not isfile(Library.folderName .. "/" .. FileName .. ".json") then return end
-	
+
 	local decoded = game:GetService("HttpService"):JSONDecode(readfile(Library.folderName .. "/" .. FileName .. ".json"))
 
 	for elementType, elementData in pairs(shared.Flags) do
@@ -1575,11 +1718,11 @@ function Library:createManager(options: table)
 	local UI = Page:createSection({text = "UI"})
 	local SaveManager = Page:createSection({position = "Right", text = "Save Manager"})
 	local ThemeManager = Page:createSection({position = "Right", text = "Theme Manager"})
-	
+
 	UI:createPicker({text = "SecondaryTextColor", default = Theme.SecondaryTextColor, callback = function(color)
 		Theme:setTheme("SecondaryTextColor", color)
 	end,})
-	
+
 	UI:createPicker({text = "PrimaryTextColor", default = Theme.PrimaryTextColor, callback = function(color)
 		Theme:setTheme("PrimaryTextColor", color)
 	end,})
@@ -1607,7 +1750,7 @@ function Library:createManager(options: table)
 	UI:createPicker({text = "ScrollingBarImageColor", default = Theme.ScrollingBarImageColor, callback = function(color)
 		Theme:setTheme("ScrollingBarImageColor", color)
 	end,})	
-	
+
 	UI:createButton({text = "Destroy UI", callback = function() Library:destroy() end})
 
 	if not isfolder(Library.folderName) then
@@ -1640,25 +1783,25 @@ function Library:createManager(options: table)
 		}
 
 		local Excluded = {"Line", "PrimaryColor", "PrimaryTextColor", "SecondaryTextColor", "PrimaryBackgroundColor", "SecondaryBackgroundColor", "TertiaryBackgroundColor", "ScrollingBarImageColor", "TabBackgroundColor"}
-	
+
 		for elementType, elementData in pairs(shared.Flags) do
 			for elementName, addon in pairs(elementData) do
 				if elementType == "Dropdown" and typeof(addon) == "table" and addon.getList and addon.getValue then
 					SavedData.Dropdown[elementName] = {list = addon:getList(), value = addon:getValue()}
 				end
-	
+
 				if elementType == "Toggle" and typeof(addon) == "table" and addon.getState then
 					SavedData.Toggle[elementName] = {state = addon:getState()}
 				end
-	
+
 				if elementType == "Slider" and typeof(addon) == "table" and addon.getValue then
 					SavedData.Slider[elementName] = {value = addon:getValue()}
 				end
-	
+
 				if elementType == "Keybind" and typeof(addon) == "table" and addon.getKeybind then
 					SavedData.Keybind[elementName] = {keybind = addon:getKeybind()}
 				end
-	
+
 				if elementType == "TextBox" and typeof(addon) == "table" and addon.getText then
 					SavedData.TextBox[elementName] = {text = addon:getText()}
 				end
@@ -1668,10 +1811,10 @@ function Library:createManager(options: table)
 				end
 			end
 		end
-	
+
 		local encoded = game:GetService("HttpService"):JSONEncode(SavedData)
 		writefile(Library.folderName .. "/" .. configName:getText() .. ".json", encoded)
-		
+
 		jsons = {}
 		for _, file in ipairs(listfiles(Library.folderName)) do
 			if not string.match(file, "Theme") and not string.match(file, "autoload") then
@@ -1685,7 +1828,7 @@ function Library:createManager(options: table)
 			shared.Flags.Dropdown["Configs"]:updateList({list = jsons, default = {shared.Flags.Dropdown["Configs"]:getValue()}})
 		end
 	end})
-	
+
 	local Configs = SaveManager:createDropdown({text = "Configs", list = jsons})
 	SaveManager:createButton({text = "Save/Overwrite Config", callback = function()
 		local SavedData = {
@@ -1698,25 +1841,25 @@ function Library:createManager(options: table)
 		}
 
 		local Excluded = {"Line", "PrimaryColor", "PrimaryTextColor", "SecondaryTextColor", "PrimaryBackgroundColor", "SecondaryBackgroundColor", "TertiaryBackgroundColor", "ScrollingBarImageColor", "TabBackgroundColor"}
-	
+
 		for elementType, elementData in pairs(shared.Flags) do
 			for elementName, addon in pairs(elementData) do
 				if elementType == "Dropdown" and typeof(addon) == "table" and addon.getList and addon.getValue then
 					SavedData.Dropdown[elementName] = {list = addon:getList(), value = addon:getValue()}
 				end
-	
+
 				if elementType == "Toggle" and typeof(addon) == "table" and addon.getState then
 					SavedData.Toggle[elementName] = {state = addon:getState()}
 				end
-	
+
 				if elementType == "Slider" and typeof(addon) == "table" and addon.getValue then
 					SavedData.Slider[elementName] = {value = addon:getValue()}
 				end
-	
+
 				if elementType == "Keybind" and typeof(addon) == "table" and addon.getKeybind then
 					SavedData.Keybind[elementName] = {keybind = addon:getKeybind()}
 				end
-	
+
 				if elementType == "TextBox" and typeof(addon) == "table" and addon.getText then
 					SavedData.TextBox[elementName] = {text = addon:getText()}
 				end
@@ -1726,10 +1869,10 @@ function Library:createManager(options: table)
 				end
 			end
 		end
-	
+
 		local encoded = game:GetService("HttpService"):JSONEncode(SavedData)
 		writefile(Library.folderName .. "/" .. Configs:getValue() .. ".json", encoded)
-		
+
 		Configs:updateList({list = jsons, default = {Configs:getValue()}})
 	end,})
 
@@ -1755,7 +1898,7 @@ function Library:createManager(options: table)
 		local SavedData = {
 			ColorPicker = {},
 		}
-	
+
 		for elementType, elementData in pairs(shared.Flags) do
 			for elementName, addon in pairs(elementData) do
 				for _, themeName in ipairs({"Line", "PrimaryColor", "PrimaryTextColor", "SecondaryTextColor", "PrimaryBackgroundColor", "SecondaryBackgroundColor", "TertiaryBackgroundColor", "ScrollingBarImageColor", "TabBackgroundColor"}) do
@@ -1768,7 +1911,7 @@ function Library:createManager(options: table)
 
 		local encoded = game:GetService("HttpService"):JSONEncode(SavedData)
 		writefile(Library.folderName .. "/" .. "Theme/" .. themeConfigName:getText() .. ".json", encoded)
-		
+
 		themeJsons = {}
 		for _, file in ipairs(listfiles(Library.folderName .. "/Theme")) do
 			file = string.gsub(file, Library.folderName .. "/Theme" .. "\\", "")
@@ -1787,7 +1930,7 @@ function Library:createManager(options: table)
 		local SavedData = {
 			ColorPicker = {},
 		}
-	
+
 		for elementType, elementData in pairs(shared.Flags) do
 			for elementName, addon in pairs(elementData) do
 				for _, themeName in ipairs({"Line", "PrimaryColor", "PrimaryTextColor", "SecondaryTextColor", "PrimaryBackgroundColor", "SecondaryBackgroundColor", "TertiaryBackgroundColor", "ScrollingBarImageColor", "TabBackgroundColor"}) do
@@ -1800,7 +1943,7 @@ function Library:createManager(options: table)
 
 		local encoded = game:GetService("HttpService"):JSONEncode(SavedData)
 		writefile(ThemeConfigs:getValue() .. ".json", encoded)
-		
+
 		ThemeConfigs:updateList({list = themeJsons, default = {ThemeConfigs:getValue()}})
 	end})
 
